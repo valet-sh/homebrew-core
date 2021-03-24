@@ -12,5 +12,5 @@
   lineinfile:
     path: "{{ formula_path }}/{{ formula_name }}.rb"
     state: present
-    regexp: "sha256.* \\\"[^\\\"]*\\\" => :{{ bottle_os }}"
-    line: "    sha256 \"{{ bottle_sha256 }}\" => :{{ bottle_os }}"
+    regexp: "sha256 {{ bottle_os }}: (.+)"
+    line: "    sha256 {{ bottle_os }}: \"{{ bottle_sha256 }}\""
