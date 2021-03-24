@@ -37,7 +37,7 @@ jobs:
 
   build-bigsur-bottles:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
-    runs-on: macos-11
+    runs-on: macos-11.0
     steps:
       - uses: actions/setup-python@v1
         with:
