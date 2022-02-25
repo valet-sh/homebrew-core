@@ -8,11 +8,13 @@ on:
 
 jobs:
 
-  build-catalina-bottles:
+  build:
     if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'build') }}"
-    runs-on: macos-10.15
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ macos-11, macOS-12-m1]
     steps:
-      
       - uses: actions/setup-python@v1
         with:
           python-version: 3.6
@@ -61,6 +63,7 @@ jobs:
       - name: Upload Bottles
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         working-directory: .github/ansible
         run: ansible-playbook playbooks/upload-bottles.yml
 

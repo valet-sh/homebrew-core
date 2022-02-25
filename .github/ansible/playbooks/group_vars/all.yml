@@ -12,15 +12,19 @@ git_commit_message: "[skip ci] Update bottle information in formulae ***NO_CI***
 
 github_actor: "{{ lookup('env','GITHUB_ACTOR') }}"
 github_token: "{{ lookup('env','GITHUB_TOKEN') }}"
+github_repository: "{{ lookup('env','GITHUB_REPOSITORY') }}"
 github_repository_path: "{{ lookup('env','GITHUB_REPOSITORY') }}"
 github_repository_url: "https://{{ github_actor }}:{{ github_token }}@github.com/{{ github_repository_path }}.git"
-github_release_id: 29266342
 
-bintray_base_url: "https://api.bintray.com/content/valet-sh/homebrew-core"
-bintray_package_url: "{{ bintray_base_url }}/core/core"
-bintray_package_publish_url: "{{ bintray_package_url }}/publish"
-bintray_key: "{{ lookup('env','BINTRAY_KEY') }}"
-bintray_user: "{{ lookup('env','BINTRAY_USER') }}"
+#github_release_id: 29266342
+github_release_name: "bottles"
+github_release_target_url: "https://github.com/{{ github_repository }}/releases/tag/{{ github_release_name }}"
+
+#bintray_base_url: "https://api.bintray.com/content/valet-sh/homebrew-core"
+#bintray_package_url: "{{ bintray_base_url }}/core/core"
+#bintray_package_publish_url: "{{ bintray_package_url }}/publish"
+#bintray_key: "{{ lookup('env','BINTRAY_KEY') }}"
+#bintray_user: "{{ lookup('env','BINTRAY_USER') }}"
 
 github_commit_filter: "{{ lookup('url', 'https://api.github.com/repos/homebrew/homebrew-core/commits?since={{ github_commit_filter_timestamp }}', split_lines=False) }}"
 git_dependency_update_commit_message: "Trigger bottle rebuild"

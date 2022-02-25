@@ -11,21 +11,45 @@
 - name: Define json filter for github release assets
   set_fact:
     github_json_filter: "json[?name=='{{ bottle_filename }}'].id | [0]"
-    
+
+- name: "get all github releases for repository '{{ github_release_asset_id }}'"
+  uri:
+    url: "https://api.github.com/repos/{{ github_repository }}/releases"
+    headers:
+      Accept: "application/vnd.github.v3+json"
+  register: github_releases
+
+- name: "select '{{ github_release_target_url }}' release"
+  set_fact:
+    github_release_url: "{{ current_github_release.html_url }}"
+  with_items: "{{ github_releases.content }}"
+  when: current_github_release.html_url == github_release_target_url
+  loop_control:
+    loop_var: current_github_release
+
+- name: "fail when no release was found"
+  fail:
+    msg: "no target release was found"
+  when: github_release_url is not defined or github_release_url|length==0
+
+- name: "extract release_id from release_url"
+  set_fact:
+    github_release_id: "{{ github_release_url | basename }}"
+
 - name: "get list of all github release assets"
   uri:
-    url: "https://api.github.com/repos/valet-sh/homebrew-core/releases/{{ github_release_id }}/assets"
+    url: "https://api.github.com/repos/{{ github_repository }}/releases/{{ github_release_id }}/assets"
     headers:
       Authorization: "token {{ github_token }}"
   register: github_release_assets
 
 - name: "check if bottle exists in github release assets"
   set_fact:
-    github_release_asset_id: "{{ github_release_assets | json_query(github_json_filter) }}"
+    github_release_asset_id: "{{ github_release_assets.content | json_query(github_json_filter) }}"
 
 - name: "delete existing bottle release asset"
   uri:
-    url: "https://api.github.com/repos/valet-sh/homebrew-core/releases/assets/{{ github_release_asset_id }}"
+    url: "https://api.github.com/repos/{{ github_repository }}/releases/assets/{{ github_release_asset_id }}"
     method: DELETE
     headers:
       Authorization: "token {{ github_token }}"
@@ -38,7 +62,7 @@
 
 - name: "upload bottle asset on github release"
   uri:
-    url: "https://uploads.github.com/repos/valet-sh/homebrew-core/releases/{{ github_release_id }}/assets?name={{ bottle_filename }}"
+    url: "https://uploads.github.com/repos/{{ github_repository }}/releases/{{ github_release_id }}/assets?name={{ bottle_filename }}"
     method: POST
     headers:
       Content-Type: "application/octet-stream"
