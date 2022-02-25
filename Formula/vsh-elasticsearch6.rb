@@ -3,7 +3,7 @@ class VshElasticsearch6 < Formula
   homepage "https://www.elastic.co/products/elasticsearch"
   url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-6.8.12.tar.gz"
   sha256 "feb6c43fe66055360754597350c088025b40566cee16175b005e55660d9e62fd"
-  revision 16
+  revision 17
   license "Apache-2.0"
 
   bottle do
