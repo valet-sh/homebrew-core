@@ -4,7 +4,7 @@ class VshOpensearch1 < Formula
   url "https://github.com/opensearch-project/OpenSearch/archive/1.3.0.tar.gz"
   sha256 "9ab025597532348ea7404eb43cce629f668eff17f23e9fb736a0089049c9b295"
   license "Apache-2.0"
-  revision 5
+  revision 6
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
