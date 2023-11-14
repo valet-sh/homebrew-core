@@ -5,7 +5,7 @@ class VshPhp74 < Formula
   mirror "https://fossies.org/linux/www/php-7.4.33.tar.xz"
   sha256 "924846abf93bc613815c55dd3f5809377813ac62a9ec4eb3778675b82a27b927"
   license "PHP-3.01"
-  revision 93
+  revision 94
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
