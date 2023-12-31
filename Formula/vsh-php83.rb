@@ -5,7 +5,7 @@ class VshPhp83 < Formula
   mirror "https://fossies.org/linux/www/php-8.3.0.tar.xz"
   sha256 "557ae14650f1d1984d3213e3fcd8d93a5f11418b3f8026d3a2d5022251163951"
   license "PHP-3.01"
-  revision 12
+  revision 13
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
