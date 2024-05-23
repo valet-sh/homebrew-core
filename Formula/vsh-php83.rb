@@ -6,11 +6,11 @@ class VshPhp83 < Formula
   mirror "https://fossies.org/linux/www/php-8.3.3.tar.xz"
   sha256 "b0a996276fe21fe9ca8f993314c8bc02750f464c7b0343f056fb0894a8dfa9d1"
   license "PHP-3.01"
-  revision 14
+  revision 15
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "dedad12f951cf2002aefa733a6b75d2a2ca51da83a2d2a27501589e86c0f4ce6"
+    sha256 ventura: "9c91777a34ff33ab92aa07958144d34bb2cc0b822aa569b6ca55d3df3ef25854"
   end
 
   depends_on "pkg-config" => :build
