@@ -2,14 +2,14 @@ class VshMysql80 < Formula
   # .
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.34.tar.gz"
+  url "https://downloads.mysql.com/archives/get/p/23/file/mysql-boost-8.0.34.tar.gz"
   sha256 "0b881a19bcef732cd4dbbfc8dfeb84eff61f5dfe0d9788d015d699733e0adf1f"
-  revision 21
+  revision 22
   license "GPL-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "70f1d864ee7659aba071d4ac7e71068768620d708453547f382451d6a6f1377e"
+    sha256 ventura: "e1a87193083c85792a99e76f59152571d1e644bbec3ff41c6c919c6147d8342a"
   end
 
   depends_on "bison" => :build
