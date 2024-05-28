@@ -11,7 +11,7 @@ class VshCmake < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3b4cf902ad9404278eab3f70015cf35797f163caaacc3df95e1c5c65b6839ad8"
+    sha256 ventura: "9606f017fa37917757bbf9f7c6c1fb637039012d8d86907e1585d88478e5b0ab"
   end
 
   uses_from_macos "ncurses"
