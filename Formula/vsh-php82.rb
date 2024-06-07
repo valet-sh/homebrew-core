@@ -1,11 +1,11 @@
 class VshPhp82 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-8.2.8.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.2.8.tar.xz"
-  sha256 "cfe1055fbcd486de7d3312da6146949aae577365808790af6018205567609801"
+  url "https://www.php.net/distributions/php-8.2.20.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.2.20.tar.xz"
+  sha256 "4474cc430febef6de7be958f2c37253e5524d5c5331a7e1765cd2d2234881e50"
   license "PHP-3.01"
-  revision 72
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
