@@ -8,7 +8,7 @@ class VshElasticsearch5 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3c62f0efc3aece3a5fab11fe6a7f419eeb538a248f9488395b13ef6be5b60067"
+    sha256 ventura: "975430ca66f5a06502c26f143be7a14e3350be5fdbc1b55a847dca1e0f77276b"
   end
 
   depends_on "openjdk@8"
