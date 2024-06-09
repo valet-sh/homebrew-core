@@ -9,7 +9,7 @@ class VshMysql57 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "fa94982f268cc9391b25640808651bd76662362970370200a22586fe226990ff"
+    sha256 ventura: "a3fb3ca106ac7b7324ca5260106b7b9d04dd4ec50ab7d14d9d8462184c1ae26b"
   end
 
   depends_on "cmake" => :build
