@@ -1,10 +1,10 @@
 class VshMariadb106 < Formula
   desc "Drop-in replacement for MySQL"
   homepage "https://mariadb.org/"
-  url "https://downloads.mariadb.com/MariaDB/mariadb-10.6.11/source/mariadb-10.6.11.tar.gz"
-  sha256 "5784ba4c5d8793badba58348576824d9849ec152e9cbee47a1765161d840c94a"
+  url "https://archive.mariadb.org/mariadb-10.6.18/source/mariadb-10.6.18.tar.gz"
+  sha256 "6898a1111f47130709e28ba2c7bd1a57e4bb57101f6e109e597d51e6d385cf18"
   license "GPL-2.0-only"
-  revision 28
+  revision 10
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -15,15 +15,17 @@ class VshMariadb106 < Formula
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "groonga"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "pcre2"
 
   uses_from_macos "bzip2"
+  uses_from_macos "krb5"
+  uses_from_macos "libedit"
   uses_from_macos "libxcrypt"
   uses_from_macos "libxml2"
   uses_from_macos "ncurses"
+  uses_from_macos "xz"
   uses_from_macos "zlib"
-
   fails_with gcc: "5"
 
   def datadir
@@ -34,12 +36,7 @@ class VshMariadb106 < Formula
     libexec/"config"
   end
 
-  # fix compilation, remove in 10.6.12
-  patch do
-    url "https://github.com/mariadb-corporation/mariadb-connector-c/commit/44383e3df4896f2d04d9141f640934d3e74e04d7.patch?full_index=1"
-    sha256 "3641e17e29dc7c9bf24bc23e4d68da81f0d9f33b0568f8ff201c4ebc0487d26a"
-    directory "libmariadb"
-  end
+  patch :DATA
 
   def install
     # Set basedir and ldata so that mysql_install_db can find the server
@@ -68,7 +65,7 @@ class VshMariadb106 < Formula
       -DDEFAULT_COLLATION=utf8mb4_general_ci
       -DINSTALL_SYSCONFDIR=#{etc}/#{name}
       -DCOMPILATION_COMMENT=valet.sh
-      -DPLUGIN_TOKUDB=NO
+      -DPLUGIN_ROCKSDB=NO
     ]
 
     system "cmake", ".", *std_cmake_args, *args
@@ -217,3 +214,45 @@ class VshMariadb106 < Formula
     Process.wait(pid)
   end
 end
+
+__END__
+diff --git a/sql/mysqld.cc b/sql/mysqld.cc
+index cfc16209251c2..a9960400c17cd 100644
+--- a/sql/mysqld.cc
++++ b/sql/mysqld.cc
+@@ -2953,6 +2953,15 @@ static void start_signal_handler(void)
+   DBUG_VOID_RETURN;
+ }
+
++/** Called only from signal_hand function. */
++static void* exit_signal_handler()
++{
++    my_thread_end();
++    signal_thread_in_use= 0;
++    pthread_exit(0);  // Safety
++    return nullptr;  // Avoid compiler warnings
++}
++
+
+ /** This threads handles all signals and alarms. */
+ /* ARGSUSED */
+@@ -3013,10 +3022,7 @@ pthread_handler_t signal_hand(void *arg __attribute__((unused)))
+     if (abort_loop)
+     {
+       DBUG_PRINT("quit",("signal_handler: calling my_thread_end()"));
+-      my_thread_end();
+-      signal_thread_in_use= 0;
+-      pthread_exit(0);				// Safety
+-      return 0;                                 // Avoid compiler warnings
++      return exit_signal_handler();
+     }
+     switch (sig) {
+     case SIGTERM:
+@@ -3035,6 +3041,7 @@ pthread_handler_t signal_hand(void *arg __attribute__((unused)))
+         PSI_CALL_delete_current_thread();
+         my_sigset(sig, SIG_IGN);
+         break_connect_loop(); // MIT THREAD has a alarm thread
++        return exit_signal_handler();
+       }
+       break;
+     case SIGHUP:
