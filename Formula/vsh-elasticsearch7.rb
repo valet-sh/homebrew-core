@@ -3,12 +3,12 @@ class VshElasticsearch7 < Formula
   homepage "https://www.elastic.co/products/elasticsearch"
   url "https://github.com/elastic/elasticsearch/archive/v7.10.2.tar.gz"
   sha256 "bdb7811882a0d9436ac202a947061b565aa71983c72e1c191e7373119a1cdd1c"
-  revision 52
+  revision 53
   license "Apache-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "a498219e297bc2356459f5b9a49fc6fa200c3f88337504e4218770fe7c0261bf"
+    sha256 ventura: "933c8a2071f529b95fa01b85e103873c1c55b0f6ca40870a61fd5f0744274d1f"
   end
 
   depends_on "gradle@6" => :build
