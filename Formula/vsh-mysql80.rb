@@ -2,9 +2,9 @@ class VshMysql80 < Formula
   # .
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
-  url "https://downloads.mysql.com/archives/get/p/23/file/mysql-boost-8.0.34.tar.gz"
-  sha256 "0b881a19bcef732cd4dbbfc8dfeb84eff61f5dfe0d9788d015d699733e0adf1f"
-  revision 27
+  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.37.tar.gz"
+  sha256 "fe0c7986f6a2d6a2ddf65e00aadb90fa6cb73da38c4172dc2b930dd1c2dc4af6"
+  revision 1
   license "GPL-2.0"
 
   bottle do
@@ -17,11 +17,12 @@ class VshMysql80 < Formula
   depends_on "pkg-config" => :build
   depends_on "icu4c"
   depends_on "libevent"
+  depends_on "libfido2"
   depends_on "lz4"
-  depends_on "openssl@1.1"
-  depends_on "protobuf@21"
-  depends_on "zstd"
+  depends_on "openssl@3"
+  depends_on "protobuf@21" # https://bugs.mysql.com/bug.php?id=113045
   depends_on "zlib" # Zlib 1.2.12+
+  depends_on "zstd"
 
   uses_from_macos "curl"
   uses_from_macos "cyrus-sasl"
@@ -30,6 +31,13 @@ class VshMysql80 < Formula
 
   conflicts_with "mysql", "mariadb", "percona-server",
     because: "mysql, mariadb, and percona install the same binaries"
+
+  fails_with gcc: "5" # for C++17
+
+  # Patch out check for Homebrew `boost`.
+  # This should not be necessary when building inside `brew`.
+  # https://github.com/Homebrew/homebrew-test-bot/pull/820
+  patch :DATA
 
   def datadir
     var/"#{name}"
@@ -56,22 +64,21 @@ class VshMysql80 < Formula
       -DWITH_SYSTEM_LIBS=ON
       -DWITH_BOOST=boost
       -DWITH_EDITLINE=system
+      -DWITH_FIDO=system
       -DWITH_ICU=system
       -DWITH_LIBEVENT=system
       -DWITH_LZ4=system
-      -DWITH_FIDO=bundled
       -DWITH_PROTOBUF=system
-      -DWITH_SSL=/usr/local/opt/openssl@1.1
+      -DWITH_SSL=no
       -DWITH_ZLIB=system
       -DWITH_ZSTD=system
       -DWITH_UNIT_TESTS=OFF
-      -DENABLED_LOCAL_INFILE=1
       -DWITH_INNODB_MEMCACHED=ON
     ]
 
-    system "cmake", ".", *std_cmake_args, *args
-    system "make"
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
 
     (bin/"mysql8.0").write <<~EOS
       #!/bin/bash
@@ -211,3 +218,41 @@ class VshMysql80 < Formula
     Process.wait(pid)
   end
 end
+
+__END__
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 42e63d0..5d21cc3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1942,31 +1942,6 @@ MYSQL_CHECK_RAPIDJSON()
+ MYSQL_CHECK_FIDO()
+ MYSQL_CHECK_FIDO_DLLS()
+
+-IF(APPLE)
+-  GET_FILENAME_COMPONENT(HOMEBREW_BASE ${HOMEBREW_HOME} DIRECTORY)
+-  IF(EXISTS ${HOMEBREW_BASE}/include/boost)
+-    FOREACH(SYSTEM_LIB ICU LIBEVENT LZ4 PROTOBUF ZSTD FIDO)
+-      IF(WITH_${SYSTEM_LIB} STREQUAL "system")
+-        MESSAGE(FATAL_ERROR
+-          "WITH_${SYSTEM_LIB}=system is not compatible with Homebrew boost\n"
+-          "MySQL depends on ${BOOST_PACKAGE_NAME} with a set of patches.\n"
+-          "Including headers from ${HOMEBREW_BASE}/include "
+-          "will break the build.\n"
+-          "Please use WITH_${SYSTEM_LIB}=bundled\n"
+-          "or do 'brew uninstall boost' or 'brew unlink boost'"
+-          )
+-      ENDIF()
+-    ENDFOREACH()
+-  ENDIF()
+-  # Ensure that we look in /usr/local/include or /opt/homebrew/include
+-  FOREACH(SYSTEM_LIB ICU LIBEVENT LZ4 PROTOBUF ZSTD FIDO)
+-    IF(WITH_${SYSTEM_LIB} STREQUAL "system")
+-      INCLUDE_DIRECTORIES(SYSTEM ${HOMEBREW_BASE}/include)
+-      BREAK()
+-    ENDIF()
+-  ENDFOREACH()
+-ENDIF()
+-
+ IF(WITH_AUTHENTICATION_FIDO OR WITH_AUTHENTICATION_CLIENT_PLUGINS)
+   IF(WITH_FIDO STREQUAL "system" AND
+     NOT WITH_SSL STREQUAL "system")
