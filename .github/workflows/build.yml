@@ -10,7 +10,7 @@ jobs:
 
   test-build-bottles:
     if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'test') }}"
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
 
       - uses: actions/setup-python@v1
@@ -22,9 +22,9 @@ jobs:
       - name: Install dependencies
         working-directory: .github/ansible
         run: |
-          brew doctor || true
-          brew update || true
-          brew upgrade $(brew outdated --formula -q) || true
+          /usr/local/bin/brew doctor || true
+          /usr/local/bin/brew update || true
+          /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true
           python -m pip install --upgrade pip
           pip install -Iq -r requirements.txt
 
