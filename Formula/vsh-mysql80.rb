@@ -2,8 +2,8 @@ class VshMysql80 < Formula
   # .
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.37.tar.gz"
-  sha256 "fe0c7986f6a2d6a2ddf65e00aadb90fa6cb73da38c4172dc2b930dd1c2dc4af6"
+  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.38.tar.gz"
+  sha256 "2b8d1620d96e8adda715bf6b060c324223d9e80db487a04cbaa2be8ec5fed718"
   revision 1
   license "GPL-2.0"
 
@@ -35,7 +35,7 @@ class VshMysql80 < Formula
   fails_with gcc: "5" # for C++17
 
   # Patch out check for Homebrew `boost`.
-  # This should not be necessary when building inside `brew`.
+   # This should not be necessary when building inside `brew`.
   # https://github.com/Homebrew/homebrew-test-bot/pull/820
   patch :DATA
 
@@ -47,7 +47,12 @@ class VshMysql80 < Formula
     etc/name
   end
 
+  def openssl_include_dir
+    #{Formula["openssl@3"]"/include"
+  end
+
   def install
+
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
     args = %W[
       -DCMAKE_INSTALL_PREFIX=#{libexec}
@@ -69,14 +74,14 @@ class VshMysql80 < Formula
       -DWITH_LIBEVENT=system
       -DWITH_LZ4=system
       -DWITH_PROTOBUF=system
-      -DWITH_SSL=no
+      -DWITH_SSL=system
       -DWITH_ZLIB=system
       -DWITH_ZSTD=system
       -DWITH_UNIT_TESTS=OFF
       -DWITH_INNODB_MEMCACHED=ON
     ]
 
-    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, *args
     system "cmake", "--build", "build"
     system "cmake", "--install", "build"
 
@@ -92,14 +97,6 @@ class VshMysql80 < Formula
       #!/bin/bash
       #{libexec}/bin/mysqladmin --defaults-file=#{etc}/#{name}/my.cnf "$@"
     EOS
-
-    # Remove libssl copies as the binaries use the keg anyway and they create problems for other applications
-    rm_rf lib/"libssl.dylib"
-    rm_rf lib/"libssl.1.1.dylib"
-    rm_rf lib/"libcrypto.1.1.dylib"
-    rm_rf lib/"libcrypto.dylib"
-    rm_rf lib/"plugin/libcrypto.1.1.dylib"
-    rm_rf lib/"plugin/libssl.1.1.dylib"
 
     # Remove the tests directory
     rm_rf prefix/"mysql-test"
