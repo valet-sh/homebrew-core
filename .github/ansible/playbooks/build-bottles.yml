@@ -40,10 +40,7 @@
         tap: 'valet-sh/core'
         state: present
 
-    - name: Build bottles for modified formulas
-      shell: |
-        brew install --build-bottle --formula {{ formula_path }}/{{ item }}
-        brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild
+    - include_tasks: sub-build-bottles.yml
       loop: "{{ git_modified_formulas }}"
 
 #    - name: Build bottles for modified formulas
