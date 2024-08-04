@@ -4,12 +4,12 @@ class VshMysql80 < Formula
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
   url "https://downloads.mysql.com/archives/get/p/23/file/mysql-boost-8.0.34.tar.gz"
   sha256 "0b881a19bcef732cd4dbbfc8dfeb84eff61f5dfe0d9788d015d699733e0adf1f"
-  revision 32
+  revision 34
   license "GPL-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "52db2b965bdf18387947cb2dbf1c99b3b23e712be3d595e8f14f30e388e896cf"
+    sha256 ventura: "84adc75d475f1e90a5f298302f096947c3a81b95350e7a9492a1925b76cbb7c1"
   end
 
   depends_on "bison" => :build
