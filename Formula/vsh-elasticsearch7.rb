@@ -11,8 +11,8 @@ class VshElasticsearch7 < Formula
     sha256 ventura: "627321ffa827eeeee95b1a0bb6b0cbc0534fefd9b1c49a6df3e7f86406c006a2"
   end
 
-  depends_on "gradle@6" => :build
-  depends_on "openjdk@11"
+  depends_on "gradle@7" => :build
+  depends_on "openjdk@17"
 
   def cluster_name
     "elasticsearch7"
