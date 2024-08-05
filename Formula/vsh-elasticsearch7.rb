@@ -1,8 +1,8 @@
 class VshElasticsearch7 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v7.17.21.tar.gz"
-  sha256 "e81fd6cc7f370aa42f77f814ed2344354dc1ea539fd918f6931830eb772d7882"
+  url "https://github.com/elastic/elasticsearch/archive/v7.17.23.tar.gz"
+  sha256 "0c7d2e591c609bff79f9e0c2fefc800783ae5eb064ca7ad110fb88e9e30f17cd"
   revision 1
   license "Apache-2.0"
 
@@ -19,12 +19,13 @@ class VshElasticsearch7 < Formula
   end
 
   def install
-    system "gradle", ":distribution:archives:oss-no-jdk-darwin-tar:assemble", "-Dbuild.snapshot=false", "-Dlicense.key=./x-pack/plugin/core/snapshot.key"
+    ENV["ES_PATH_CONF"] = '#{Formula["openjdk@17"]'
+    system "./gradlew", ":distribution:archives:darwin-tar:assemble", "-Dbuild.snapshot=false", "-Dlicense.key=./x-pack/plugin/core/snapshot.key"
 
     mkdir "tar" do
       # Extract the package to the tar directory
       system "tar", "--strip-components=1", "-xf",
-        Dir["../distribution/archives/oss-no-jdk-darwin-tar/build/distributions/elasticsearch-oss-*.tar.gz"].first
+        Dir["../distribution/archives/darwin-tar/build/distributions/elasticsearch-*.tar.gz"].first
 
       # Install into package directory
       libexec.install "bin", "config", "lib", "modules"
