@@ -1,30 +1,31 @@
 class VshElasticsearch7 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v7.10.2.tar.gz"
-  sha256 "bdb7811882a0d9436ac202a947061b565aa71983c72e1c191e7373119a1cdd1c"
-  revision 54
+  url "https://github.com/elastic/elasticsearch/archive/v7.17.23.tar.gz"
+  sha256 "0c7d2e591c609bff79f9e0c2fefc800783ae5eb064ca7ad110fb88e9e30f17cd"
+  revision 1
   license "Apache-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "627321ffa827eeeee95b1a0bb6b0cbc0534fefd9b1c49a6df3e7f86406c006a2"
+    sha256 ventura: "c6feb13292305ffacba90c55e7fb338829fb574a717a9bd9f10fa194b395de00"
   end
 
-  depends_on "gradle@6" => :build
-  depends_on "openjdk@11"
+  depends_on "gradle@7" => :build
+  depends_on "openjdk@17"
 
   def cluster_name
     "elasticsearch7"
   end
 
   def install
-    system "gradle", ":distribution:archives:oss-no-jdk-darwin-tar:assemble", "-Dbuild.snapshot=false", "-Dlicense.key=./x-pack/plugin/core/snapshot.key"
+    ENV["ES_PATH_CONF"] = '#{Formula["openjdk@17"]'
+    system "./gradlew", ":distribution:archives:darwin-tar:assemble", "-Dbuild.snapshot=false", "-Dlicense.key=./x-pack/plugin/core/snapshot.key"
 
     mkdir "tar" do
       # Extract the package to the tar directory
       system "tar", "--strip-components=1", "-xf",
-        Dir["../distribution/archives/oss-no-jdk-darwin-tar/build/distributions/elasticsearch-oss-*.tar.gz"].first
+        Dir["../distribution/archives/darwin-tar/build/distributions/elasticsearch-*.tar.gz"].first
 
       # Install into package directory
       libexec.install "bin", "config", "lib", "modules"
