@@ -4,7 +4,7 @@ class VshElasticsearch5 < Formula
   url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.tar.gz"
   sha256 "6b035a59337d571ab70cea72cc55225c027ad142fbb07fd8984e54261657c77f"
   license "Apache-2.0"
-  revision 33
+  revision 35
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
