@@ -1,11 +1,11 @@
 class VshPhp81 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-8.1.14.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.1.14.tar.xz"
-  sha256 "e16e47a872d58685913ac848ce92ec49f42c1828110c98c65fb6265a08724a1a"
+  url "https://www.php.net/distributions/php-8.1.29.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.1.29.tar.xz"
+  sha256 "288884af60581d4284baba2ace9ca6d646f72facbd3e3c2dd2acc7fe6f903536"
   license "PHP-3.01"
-  revision 155
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
