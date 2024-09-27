@@ -1,14 +1,14 @@
 class VshElasticsearch7 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v7.17.23.tar.gz"
-  sha256 "0c7d2e591c609bff79f9e0c2fefc800783ae5eb064ca7ad110fb88e9e30f17cd"
-  revision 2
+  url "https://github.com/elastic/elasticsearch/archive/v7.17.24.tar.gz"
+  sha256 "3a80d1a6a86f38b9e4249a497c4414053350636b46b039a9398ea0d55e58a45a"
+  revision 1
   license "Apache-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3788d4b5cac7e16444f33782dd98001b2e303ddae28d5e268f446cff5eafc8d1"
+    sha256 ventura: "23239a77dac082d1ce4f2735a259546b0f7eb6ebe53ee54f90c73bf02d987d8b"
   end
 
   depends_on "gradle@7" => :build
