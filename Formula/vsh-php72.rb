@@ -4,11 +4,11 @@ class VshPhp72 < Formula
   url "https://www.php.net/distributions/php-7.2.34.tar.xz"
   mirror "https://fossies.org/linux/www/php-7.2.34.tar.xz"
   sha256 "409e11bc6a2c18707dfc44bc61c820ddfd81e17481470f3405ee7822d8379903"
-  revision 457
+  revision 458
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "91b0e774e61c14627f603837855d6d06b7122fb263036298740e2b8d5668dcc1"
+    sha256 ventura: "44aa64c14761306d7ad5a94785b20e5d4ae26f20d63678d0d2be288c695457e9"
   end
 
   depends_on "pkg-config" => :build
