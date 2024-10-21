@@ -17,5 +17,5 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: script
-      run: bash ${GITHUB_WORKSPACE}/.github/scripts/brew-install-tests.sh
+      run: bash ${GITHUB_WORKSPACE}/.github/scripts/brew-install-tests-arm.sh
       shell: bash
