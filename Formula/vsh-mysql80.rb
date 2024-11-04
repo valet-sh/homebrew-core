@@ -57,6 +57,9 @@ class VshMysql80 < Formula
 
   def install
 
+    icu4c = deps.find { |dep| dep.name.match?(/^icu4c(@\d+)?$/) }
+                .to_formula
+
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
     args = %W[
       -DCMAKE_INSTALL_PREFIX=#{libexec}
