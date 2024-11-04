@@ -2,10 +2,10 @@ class VshMysql80 < Formula
   # .
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.38.tar.gz"
-  sha256 "2b8d1620d96e8adda715bf6b060c324223d9e80db487a04cbaa2be8ec5fed718"
+  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.40.tar.gz"
+  sha256 "eb34a23d324584688199b4222242f4623ea7bca457a3191cd7a106c63a7837d9"
+  license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
   revision 1
-  license "GPL-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -15,13 +15,14 @@ class VshMysql80 < Formula
   depends_on "bison" => :build
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
-  depends_on "icu4c@74"
+  depends_on "abseil"
+  depends_on "icu4c@76"
   depends_on "libevent"
   depends_on "libfido2"
   depends_on "lz4"
   depends_on "openssl@3"
-  depends_on "protobuf@21" # https://bugs.mysql.com/bug.php?id=113045
-  depends_on "zlib" # Zlib 1.2.12+
+  depends_on "protobuf"
+  depends_on "zlib" # Zlib 1.2.13+
   depends_on "zstd"
 
   uses_from_macos "curl"
@@ -32,7 +33,10 @@ class VshMysql80 < Formula
   conflicts_with "mysql", "mariadb", "percona-server",
     because: "mysql, mariadb, and percona install the same binaries"
 
-  fails_with gcc: "5" # for C++17
+  fails_with :gcc do
+    version "6"
+    cause "Requires C++17"
+  end
 
   # Patch out check for Homebrew `boost`.
    # This should not be necessary when building inside `brew`.
@@ -66,11 +70,13 @@ class VshMysql80 < Formula
       -DINSTALL_PLUGINDIR=lib/plugin
       -DMYSQL_DATADIR=#{datadir}
       -DSYSCONFDIR=#{etcdir}
+      -DBISON_EXECUTABLE=#{Formula["bison"].opt_bin}/bison
+      -DOPENSSL_ROOT_DIR=#{Formula["openssl@3"].opt_prefix}
       -DWITH_SYSTEM_LIBS=ON
       -DWITH_BOOST=boost
       -DWITH_EDITLINE=system
       -DWITH_FIDO=system
-      -DWITH_ICU=system
+      -DWITH_ICU=#{icu4c.opt_prefix}
       -DWITH_LIBEVENT=system
       -DWITH_LZ4=system
       -DWITH_PROTOBUF=system
