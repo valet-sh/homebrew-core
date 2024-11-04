@@ -26,7 +26,7 @@ class VshPhp80 < Formula
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c"
+  depends_on "icu4c@74"
   depends_on "jpeg"
   depends_on "libpng"
   depends_on "libyaml"
