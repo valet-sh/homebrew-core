@@ -5,11 +5,11 @@ class VshPhp56 < Formula
   version "5.6.40"
   sha256 "e83869bb7ac2cb773d4456ac6409fed55f36779ccc28b2bd8a67228538e4cf4b"
   license "PHP-3.01"
-  revision 406
+  revision 407
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "5ea5c2e0c7a8a83b0fa31675154f16d3b52035b2e4d402392b6fd41244ba10c9"
+    sha256 ventura: "cc469ce99ae86720f5bfa0ea597b184a94a882088eca9ab899f3c3abbd0b3618"
   end
 
   depends_on "bison" => :build
@@ -26,7 +26,7 @@ class VshPhp56 < Formula
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c"
+  depends_on "vsh-icu4c"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -145,7 +145,7 @@ class VshPhp56 < Formula
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["icu4c"].opt_prefix}
+      --with-icu-dir=#{Formula["vsh-icu4c"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
