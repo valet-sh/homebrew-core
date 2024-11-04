@@ -1,9 +1,9 @@
 class VshElasticsearch7 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v7.17.24.tar.gz"
-  sha256 "3a80d1a6a86f38b9e4249a497c4414053350636b46b039a9398ea0d55e58a45a"
-  revision 3
+  url "https://github.com/elastic/elasticsearch/archive/v7.17.25.tar.gz"
+  sha256 "f5527cfffb754f1204b2e0a908a251c6e0946831f260e67f43c4b54f38dc0aac"
+  revision 1
   license "Apache-2.0"
 
   bottle do
