@@ -5,17 +5,17 @@ on:
     - cron: "30 3 * * 0"
 
 jobs:
-  tests-on-macos-12:
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v1
-    - name: script
-      run: bash ${GITHUB_WORKSPACE}/.github/scripts/brew-install-tests.sh
-      shell: bash
   tests-on-macos-13:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v1
     - name: script
       run: bash ${GITHUB_WORKSPACE}/.github/scripts/brew-install-tests.sh
+      shell: bash
+  tests-on-macos-latest:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: script
+      run: bash ${GITHUB_WORKSPACE}/.github/scripts/brew-install-tests-arm.sh
       shell: bash

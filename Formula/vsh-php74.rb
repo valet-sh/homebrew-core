@@ -5,11 +5,11 @@ class VshPhp74 < Formula
   mirror "https://fossies.org/linux/www/php-7.4.33.tar.xz"
   sha256 "924846abf93bc613815c55dd3f5809377813ac62a9ec4eb3778675b82a27b927"
   license "PHP-3.01"
-  revision 139
+  revision 159
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "0d5dd01d9c5692566f4857fdebd65eb148342d363b7638a3a2ce47cced95a736"
+    sha256 ventura: "f3319aec6ca55fc7d177a590b9e17cc2c79c02c39f5d0e023eea78428f450b01"
   end
 
   depends_on "pkg-config" => :build
@@ -24,7 +24,7 @@ class VshPhp74 < Formula
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c"
+  depends_on "icu4c@74"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libffi"

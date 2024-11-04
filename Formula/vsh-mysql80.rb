@@ -15,7 +15,7 @@ class VshMysql80 < Formula
   depends_on "bison" => :build
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
-  depends_on "icu4c"
+  depends_on "icu4c@74"
   depends_on "libevent"
   depends_on "libfido2"
   depends_on "lz4"

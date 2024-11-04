@@ -1,15 +1,15 @@
 class VshPhp81 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-8.1.14.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.1.14.tar.xz"
-  sha256 "e16e47a872d58685913ac848ce92ec49f42c1828110c98c65fb6265a08724a1a"
+  url "https://www.php.net/distributions/php-8.1.30.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.1.30.tar.xz"
+  sha256 "f24a6007f0b25a53cb7fbaee69c85017e0345b62089c2425a0afb7e177192ed1"
   license "PHP-3.01"
-  revision 138
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "964523832833ffd99fcdab0d1dc71012c20c844390471020e34289462bf9a2dc"
+    sha256 ventura: "e6a6d8fffc6e762000feeb9c8a4733f8b35c7c057eb097e4cfcd41a6b69652b6"
   end
 
   depends_on "bison" => :build
@@ -26,7 +26,7 @@ class VshPhp81 < Formula
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c"
+  depends_on "icu4c@74"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -54,9 +54,18 @@ class VshPhp81 < Formula
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  # PHP build system incorrectly links system libraries
-  # see https://github.com/php/php-src/pull/3472
-  patch :DATA
+  on_macos do
+    # Apply MacPorts patch for Xcode 16. Upstream fix doesn't cleanly apply
+    # Ref: https://github.com/php/php-src/commit/e2e2b3ab62686af85fb079a403b5dda75595f6dd
+    patch do
+      url "https://raw.githubusercontent.com/macports/macports-ports/f6c30c5b3a810d4154ab8c85bb23274baa020fe1/lang/php/files/patch-php81-zend_string_equal_val.diff"
+      sha256 "382b1815dda418f539799c05674c3bfc22ec7e1da7494afd9f883938b4b3a1e2"
+    end
+
+    # PHP build system incorrectly links system libraries
+    # see https://github.com/php/php-src/issues/10680
+    patch :DATA
+  end
 
   resource "xdebug_module" do
     url "https://github.com/xdebug/xdebug/archive/refs/tags/3.2.0.tar.gz"
@@ -69,6 +78,13 @@ class VshPhp81 < Formula
   end
 
   def install
+
+    # Backport fix for libxml2 >= 2.13
+    # Ref: https://github.com/php/php-src/commit/67259e451d5d58b4842776c5696a66d74e157609
+    inreplace "ext/xml/compat.c",
+              "!= XML_PARSER_ENTITY_VALUE && parser->parser->instate != XML_PARSER_ATTRIBUTE_VALUE)",
+              "== XML_PARSER_CONTENT)"
+
     # Ensure that libxml2 will be detected correctly in older MacOS
     ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :el_capitan || MacOS.version == :sierra
 

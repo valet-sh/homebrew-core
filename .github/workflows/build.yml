@@ -57,7 +57,7 @@ jobs:
         working-directory: .github/ansible
         run: ansible-playbook -vvv playbooks/build-bottles.yml
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           name: build
           path: build
@@ -79,9 +79,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -Iq -r requirements.txt
 
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: build
+          path: build
 
       - name: Upload Bottles
         env:
@@ -109,9 +110,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -Iq -r requirements.txt
 
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: build
+          path: build
 
       - name: Update Formulas
         env:

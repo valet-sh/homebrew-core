@@ -1,15 +1,15 @@
 class VshPhp82 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-8.2.20.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.2.20.tar.xz"
-  sha256 "4474cc430febef6de7be958f2c37253e5524d5c5331a7e1765cd2d2234881e50"
+  url "https://www.php.net/distributions/php-8.2.25.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.2.25.tar.xz"
+  sha256 "330b54876ea1d05ade12ee9726167332058bccd58dffa1d4e12117f6b4f616b9"
   license "PHP-3.01"
-  revision 7
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "00a82ad82ba66c3ee7dae143e97fd0e0682c322e28950fa724a41863b4f43a2d"
+    sha256 ventura: "33c77f5257551c44f388a20ed193b43273b860e073d673dc6de087da91d82ec5"
   end
 
   depends_on "pkg-config" => :build
@@ -23,7 +23,7 @@ class VshPhp82 < Formula
   depends_on "gd"
   depends_on "gettext"
   depends_on "gmp"
-  depends_on "icu4c"
+  depends_on "icu4c@74"
   depends_on "krb5"
   depends_on "libpq"
   depends_on "libsodium"
