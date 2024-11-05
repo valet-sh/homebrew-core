@@ -5,7 +5,7 @@ class VshPhp70 < Formula
   version "7.0.33"
   sha256 "a40f969f584fb35b1caf1d2f5c45dfceee92f7e9d8e61b26b806f7537c5c645b"
   license "PHP-3.01"
-  revision 1
+  revision 500
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -23,6 +23,7 @@ class VshPhp70 < Formula
   depends_on "freetds"
   depends_on "freetype"
   depends_on "gettext"
+  depends_on "gd"
   depends_on "glib"
   depends_on "gmp"
   depends_on "icu4c@75"
@@ -33,6 +34,8 @@ class VshPhp70 < Formula
   depends_on "libyaml"
   depends_on "pcre"
   depends_on "libtool"
+  depends_on "libx11"
+  depends_on "libxpm"
   depends_on "vsh-mcrypt"
   depends_on "libzip"
   depends_on "openldap"
@@ -143,11 +146,11 @@ class VshPhp70 < Formula
       --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl=#{Formula["curl-openssl"].opt_prefix}
+      --with-curl=#{Formula["curl"].opt_prefix}
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
-      --with-gd
+      --with-gd=#{Formula["gd"].opt_prefix}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
@@ -180,6 +183,7 @@ class VshPhp70 < Formula
       --with-unixODBC=#{Formula["unixodbc"].opt_prefix}
       --with-webp-dir=#{Formula["webp"].opt_prefix}
       --with-xmlrpc
+      --with-xpm-dir=#{Formula["libxpm"].opt_prefix}
       --with-xsl#{headers_path}
       --with-zlib#{headers_path}
     ]
@@ -203,6 +207,15 @@ class VshPhp70 < Formula
       system "make", "all"
       system "make", "install"
     }
+
+    # Use OpenSSL cert bundle
+    openssl = Formula["openssl@3"]
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", /; ?openssl\.cafile=/,
+        "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
+      inreplace "php.ini-#{mode}", /; ?openssl\.capath=/,
+        "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    end
 
     config_files = {
       "php.ini-development"   => "php.ini",
@@ -427,6 +440,24 @@ class VshPhp70 < Formula
 end
 
 __END__
+diff --git a/configure.in b/configure.in
+index 7ba3bc05a5..279230fa80 100644
+--- a/configure.in
++++ b/configure.in
+@@ -60,7 +60,13 @@ AH_BOTTOM([
+ #endif
+
+ #if ZEND_BROKEN_SPRINTF
++#ifdef __cplusplus
++extern "C" {
++#endif
+ int zend_sprintf(char *buffer, const char *format, ...);
++#ifdef __cplusplus
++}
++#endif
+ #else
+ # define zend_sprintf sprintf
+ #endif
 diff --git a/acinclude.m4 b/acinclude.m4
 index 168c465f8d..6c087d152f 100644
 --- a/acinclude.m4
