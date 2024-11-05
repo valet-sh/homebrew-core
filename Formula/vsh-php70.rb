@@ -151,7 +151,7 @@ class VshPhp70 < Formula
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["vsh-icu4c"].opt_prefix}
+      --with-icu-dir=#{Formula["icu4c@75"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
@@ -165,7 +165,7 @@ class VshPhp70 < Formula
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
       --with-ndbm#{headers_path}
-      --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
+      --with-openssl=#{Formula["openssl@3"].opt_prefix}
       --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
       --with-pdo-odbc=unixODBC,#{Formula["unixodbc"].opt_prefix}

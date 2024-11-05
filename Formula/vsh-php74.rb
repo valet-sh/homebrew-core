@@ -12,6 +12,7 @@ class VshPhp74 < Formula
     sha256 ventura: "f3319aec6ca55fc7d177a590b9e17cc2c79c02c39f5d0e023eea78428f450b01"
   end
 
+  depends_on "bison" => :build
   depends_on "pkg-config" => :build
   depends_on "re2c" => :build
   depends_on "apr"
