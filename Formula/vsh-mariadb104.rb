@@ -15,7 +15,7 @@ class VshMariadb104 < Formula
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "groonga"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "pcre2"
   depends_on "lz4"
   depends_on "lzo"
@@ -57,7 +57,7 @@ class VshMariadb104 < Formula
       -DINSTALL_INFODIR=share/info
       -DINSTALL_MYSQLSHAREDIR=share/mysql
       -DWITH_READLINE=yes
-      -DWITH_SSL=yes
+      -DWITH_SSL=no
       -DWITH_UNIT_TESTS=OFF
       -DDEFAULT_CHARSET=utf8mb4
       -DDEFAULT_COLLATION=utf8mb4_general_ci
