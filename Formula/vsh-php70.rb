@@ -13,6 +13,7 @@ class VshPhp70 < Formula
   end
 
   depends_on "pkg-config" => :build
+  depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
   depends_on "aspell"
