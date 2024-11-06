@@ -1,18 +1,20 @@
 class VshPhp74 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-7.4.33.tar.xz"
-  mirror "https://fossies.org/linux/www/php-7.4.33.tar.xz"
-  sha256 "924846abf93bc613815c55dd3f5809377813ac62a9ec4eb3778675b82a27b927"
+  url "https://github.com/shivammathur/php-src-backports/archive/e0f74921d4a5f1cbea083a9fd07aa78f930fd5f5.tar.gz"
+  version "7.4.33"
+  sha256 "69d0995fd377caa204372d28420463ed5dffd35cdc6013fa33ee41b8fcc4cfb2"
   license "PHP-3.01"
-  revision 159
+  revision 500
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "f3319aec6ca55fc7d177a590b9e17cc2c79c02c39f5d0e023eea78428f450b01"
+    sha256 ventura: "5c75e9f7b50bfd8ef24bb69a9ed4de55fa5d244755162bdf7c144778a75ca363"
   end
 
+  depends_on "bison" => :build
   depends_on "pkg-config" => :build
+  depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
   depends_on "argon2"
@@ -23,8 +25,9 @@ class VshPhp74 < Formula
   depends_on "freetype"
   depends_on "gettext"
   depends_on "glib"
+  depends_on "gd"
   depends_on "gmp"
-  depends_on "icu4c@74"
+  depends_on "icu4c@75"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libffi"
@@ -36,7 +39,7 @@ class VshPhp74 < Formula
   depends_on "libzip"
   depends_on "oniguruma"
   depends_on "openldap"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "sqlite"
   depends_on "tidy-html5"
   depends_on "unixodbc"
@@ -71,11 +74,14 @@ class VshPhp74 < Formula
   end
 
   def install
-    # Ensure that libxml2 will be detected correctly in older MacOS
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :el_capitan || MacOS.version == :sierra
+    # Work around for building with Xcode 15.3
+    if DevelopmentTools.clang_build_version >= 1500
+      ENV.append "CFLAGS", "-Wno-incompatible-function-pointer-types"
+      ENV.append "LDFLAGS", "-lresolv"
+    end
 
-    current_pkg_config_path = ENV["PKG_CONFIG_PATH"]
-    ENV["PKG_CONFIG_PATH"] = "/usr/local/opt/openssl@1.1/lib/pkgconfig:#{current_pkg_config_path}"
+    # Work around to support `icu4c` 75, which needs C++17.
+    ENV["ICU_CXXFLAGS"] = "-std=c++17"
 
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
@@ -84,19 +90,24 @@ class VshPhp74 < Formula
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
 
+
+    # Prevent homebrew from hardcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
 
     # system pkg-config missing
     ENV["KERBEROS_CFLAGS"] = " "
-    ENV["KERBEROS_LIBS"] = "-lkrb5"
-    ENV["SASL_CFLAGS"] = "-I#{MacOS.sdk_path_if_needed}/usr/include/sasl"
-    ENV["SASL_LIBS"] = "-lsasl2"
-    ENV["EDIT_CFLAGS"] = " "
-    ENV["EDIT_LIBS"] = "-ledit"
+    if OS.mac?
+      ENV["SASL_CFLAGS"] = "-I#{MacOS.sdk_path_if_needed}/usr/include/sasl"
+      ENV["SASL_LIBS"] = "-lsasl2"
+    else
+      ENV["SQLITE_CFLAGS"] = "-I#{Formula["sqlite"].opt_include}"
+      ENV["SQLITE_LIBS"] = "-lsqlite3"
+      ENV["BZIP_DIR"] = Formula["bzip2"].opt_prefix
+    end
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
-    headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
+    headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
 
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20190902"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
@@ -138,6 +149,8 @@ class VshPhp74 < Formula
       --with-bz2#{headers_path}
       --with-curl
       --with-ffi
+      --with-external-gd
+      --with-external-pcre
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype
@@ -206,11 +219,13 @@ class VshPhp74 < Formula
     }
 
     # Use OpenSSL cert bundle
-    openssl = Formula["openssl@1.1"]
-    inreplace "php.ini-development", /; ?openssl\.cafile=/,
-      "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
-    inreplace "php.ini-development", /; ?openssl\.capath=/,
-      "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    openssl = Formula["openssl@3"]
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", /; ?openssl\.cafile=/,
+        "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
+      inreplace "php.ini-#{mode}", /; ?openssl\.capath=/,
+        "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    end
 
     inreplace "sapi/fpm/www.conf" do |s|
       s.gsub!(/listen =.*/, "listen = /tmp/#{name}.sock")
