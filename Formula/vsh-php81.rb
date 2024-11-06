@@ -5,7 +5,7 @@ class VshPhp81 < Formula
   mirror "https://fossies.org/linux/www/php-8.1.30.tar.xz"
   sha256 "f24a6007f0b25a53cb7fbaee69c85017e0345b62089c2425a0afb7e177192ed1"
   license "PHP-3.01"
-  revision 1
+  revision 10
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -14,6 +14,7 @@ class VshPhp81 < Formula
 
   depends_on "bison" => :build
   depends_on "pkg-config" => :build
+  depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
   depends_on "argon2"
@@ -26,7 +27,7 @@ class VshPhp81 < Formula
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c@74"
+  depends_on "icu4c@75"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -38,7 +39,7 @@ class VshPhp81 < Formula
   depends_on "libzip"
   depends_on "oniguruma"
   depends_on "openldap"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "pcre2"
   depends_on "sqlite"
   depends_on "tidy-html5"
@@ -46,7 +47,6 @@ class VshPhp81 < Formula
   depends_on "webp"
   depends_on "imagemagick"
 
-  uses_from_macos "xz" => :build
   uses_from_macos "bzip2"
   uses_from_macos "libedit"
   uses_from_macos "libffi", since: :catalina
@@ -78,18 +78,14 @@ class VshPhp81 < Formula
   end
 
   def install
-
     # Backport fix for libxml2 >= 2.13
     # Ref: https://github.com/php/php-src/commit/67259e451d5d58b4842776c5696a66d74e157609
     inreplace "ext/xml/compat.c",
               "!= XML_PARSER_ENTITY_VALUE && parser->parser->instate != XML_PARSER_ATTRIBUTE_VALUE)",
               "== XML_PARSER_CONTENT)"
 
-    # Ensure that libxml2 will be detected correctly in older MacOS
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :el_capitan || MacOS.version == :sierra
-
-    current_pkg_config_path = ENV["PKG_CONFIG_PATH"]
-    ENV["PKG_CONFIG_PATH"] = "/usr/local/opt/openssl@1.1/lib/pkgconfig:#{current_pkg_config_path}"
+    # Work around to support `icu4c` 75, which needs C++17.
+    ENV["ICU_CXXFLAGS"] = "-std=c++17"
 
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
@@ -101,8 +97,15 @@ class VshPhp81 < Formula
     ENV["lt_cv_path_SED"] = "sed"
 
     # system pkg-config missing
-    ENV["SASL_CFLAGS"] = "-I#{MacOS.sdk_path_if_needed}/usr/include/sasl"
-    ENV["SASL_LIBS"] = "-lsasl2"
+    ENV["KERBEROS_CFLAGS"] = " "
+    if OS.mac?
+      ENV["SASL_CFLAGS"] = "-I#{MacOS.sdk_path_if_needed}/usr/include/sasl"
+      ENV["SASL_LIBS"] = "-lsasl2"
+    else
+      ENV["SQLITE_CFLAGS"] = "-I#{Formula["sqlite"].opt_include}"
+      ENV["SQLITE_LIBS"] = "-lsqlite3"
+      ENV["BZIP_DIR"] = Formula["bzip2"].opt_prefix
+    end
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
@@ -210,11 +213,13 @@ class VshPhp81 < Formula
     }
 
     # Use OpenSSL cert bundle
-    openssl = Formula["openssl@1.1"]
-    inreplace "php.ini-development", /; ?openssl\.cafile=/,
-      "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
-    inreplace "php.ini-development", /; ?openssl\.capath=/,
-      "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    openssl = Formula["openssl@3"]
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", /; ?openssl\.cafile=/,
+        "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
+      inreplace "php.ini-#{mode}", /; ?openssl\.capath=/,
+        "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    end
 
     inreplace "sapi/fpm/www.conf" do |s|
       s.gsub!(/listen =.*/, "listen = /tmp/#{name}.sock")
