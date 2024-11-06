@@ -4,18 +4,18 @@ class VshMariadb104 < Formula
   url "https://downloads.mariadb.com/MariaDB/mariadb-10.4.22/source/mariadb-10.4.22.tar.gz"
   sha256 "44bdc36eeb02888296e961718bae808f3faab268ed49160a785248db60500c00"
   license "GPL-2.0-only"
-  revision 62
+  revision 70
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "da7e9a879b0bc8870c71c462c50d9e7934487fd02f7db63d23f464121b5d0385"
+    sha256 ventura: "6064b163875921afe68001254a5beed5523f2e30b577a6fe4fc47b52de74f5ce"
   end
 
   depends_on "bison" => :build
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "groonga"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "pcre2"
   depends_on "lz4"
   depends_on "lzo"
@@ -57,7 +57,7 @@ class VshMariadb104 < Formula
       -DINSTALL_INFODIR=share/info
       -DINSTALL_MYSQLSHAREDIR=share/mysql
       -DWITH_READLINE=yes
-      -DWITH_SSL=yes
+      -DWITH_SSL=no
       -DWITH_UNIT_TESTS=OFF
       -DDEFAULT_CHARSET=utf8mb4
       -DDEFAULT_COLLATION=utf8mb4_general_ci
