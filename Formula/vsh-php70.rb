@@ -1,16 +1,20 @@
 class VshPhp70 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-7.0.33.tar.xz"
-  sha256 "ab8c5be6e32b1f8d032909dedaaaa4bbb1a209e519abb01a52ce3914f9a13d96"
-  revision 394
+  url "https://github.com/shivammathur/php-src-backports/archive/e74d83cb136282e1fda676bf22a7cc7f5578626b.tar.gz"
+  version "7.0.33"
+  sha256 "a40f969f584fb35b1caf1d2f5c45dfceee92f7e9d8e61b26b806f7537c5c645b"
+  license "PHP-3.01"
+  revision 500
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "b54ac7131b69761a45f4c8ed08067851622f2c192af7c6c79e6954dc87f4d172"
+    sha256 ventura: "4272eea4e391362011e8efa7143c8feec1bcfc35b073a7ff85561a39892f8864"
   end
 
+  depends_on "bison" => :build
   depends_on "pkg-config" => :build
+  depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
   depends_on "aspell"
@@ -19,9 +23,10 @@ class VshPhp70 < Formula
   depends_on "freetds"
   depends_on "freetype"
   depends_on "gettext"
+  depends_on "gd"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "vsh-icu4c"
+  depends_on "icu4c@75"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -29,15 +34,23 @@ class VshPhp70 < Formula
   depends_on "libyaml"
   depends_on "pcre"
   depends_on "libtool"
+  depends_on "libx11"
+  depends_on "libxpm"
   depends_on "vsh-mcrypt"
   depends_on "libzip"
   depends_on "openldap"
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
   depends_on "sqlite"
   depends_on "tidy-html5"
   depends_on "unixodbc"
   depends_on "webp"
   depends_on "imagemagick"
+
+  uses_from_macos "bzip2"
+  uses_from_macos "libedit"
+  uses_from_macos "libxml2"
+  uses_from_macos "libxslt"
+  uses_from_macos "zlib"
 
   # PHP build system incorrectly links system libraries
   # see https://github.com/php/php-src/pull/3472
@@ -54,19 +67,27 @@ class VshPhp70 < Formula
   end
 
   def install
-    # Ensure that libxml2 will be detected correctly in older MacOS
-    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :el_capitan || MacOS.version == :sierra
-
-    current_pkg_config_path = ENV["PKG_CONFIG_PATH"]
-    ENV["PKG_CONFIG_PATH"] = "/usr/local/opt/openssl@1.1/lib/pkgconfig:#{current_pkg_config_path}"
-
     # Work around configure issues with Xcode 12
     # See https://bugs.php.net/bug.php?id=80171
     ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
 
+    # Work around for building with Xcode 15.3
+    if DevelopmentTools.clang_build_version >= 1500
+      ENV.append "CFLAGS", "-Wno-incompatible-function-pointer-types"
+      ENV.append "LDFLAGS", "-lresolv"
+      inreplace "main/reentrancy.c", "readdir_r(dirp, entry)", "readdir_r(dirp, entry, result)"
+    end
+
     # Workaround for https://bugs.php.net/80310
     ENV.append "CFLAGS", "-DU_DEFINE_FALSE_AND_TRUE=1"
     ENV.append "CXXFLAGS", "-DU_DEFINE_FALSE_AND_TRUE=1"
+
+    # icu4c 61.1 compatibility
+    ENV.append "CPPFLAGS", "-DU_USING_ICU_NAMESPACE=1"
+
+    # Work around to support `icu4c` 75, which needs C++17.
+    ENV.append "CXX", "-std=c++17"
+    ENV.libcxx if ENV.compiler == :clang
 
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
@@ -75,11 +96,6 @@ class VshPhp70 < Formula
 
     # API compatibility with tidy-html5 v5.0.0 - https://github.com/htacg/tidy-html5/issues/224
     inreplace "ext/tidy/tidy.c", "buffio.h", "tidybuffio.h"
-
-    # Required due to icu4c dependency
-    ENV.cxx11
-
-    ENV.append "CPPFLAGS", "-DU_USING_ICU_NAMESPACE=1"
 
     config_path = etc/"#{name}"
     # Prevent system pear config from inhibiting pear install
@@ -130,15 +146,15 @@ class VshPhp70 < Formula
       --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl=#{Formula["curl-openssl"].opt_prefix}
+      --with-curl=#{Formula["curl"].opt_prefix}
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
-      --with-gd
+      --with-gd=#{Formula["gd"].opt_prefix}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["vsh-icu4c"].opt_prefix}
+      --with-icu-dir=#{Formula["icu4c@75"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
@@ -152,7 +168,7 @@ class VshPhp70 < Formula
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
       --with-ndbm#{headers_path}
-      --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
+      --with-openssl=#{Formula["openssl@3"].opt_prefix}
       --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
       --with-pdo-odbc=unixODBC,#{Formula["unixodbc"].opt_prefix}
@@ -167,6 +183,7 @@ class VshPhp70 < Formula
       --with-unixODBC=#{Formula["unixodbc"].opt_prefix}
       --with-webp-dir=#{Formula["webp"].opt_prefix}
       --with-xmlrpc
+      --with-xpm-dir=#{Formula["libxpm"].opt_prefix}
       --with-xsl#{headers_path}
       --with-zlib#{headers_path}
     ]
@@ -190,6 +207,15 @@ class VshPhp70 < Formula
       system "make", "all"
       system "make", "install"
     }
+
+    # Use OpenSSL cert bundle
+    openssl = Formula["openssl@3"]
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", /; ?openssl\.cafile=/,
+        "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
+      inreplace "php.ini-#{mode}", /; ?openssl\.capath=/,
+        "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    end
 
     config_files = {
       "php.ini-development"   => "php.ini",
@@ -414,6 +440,24 @@ class VshPhp70 < Formula
 end
 
 __END__
+diff --git a/configure.in b/configure.in
+index 7ba3bc05a5..279230fa80 100644
+--- a/configure.in
++++ b/configure.in
+@@ -60,7 +60,13 @@ AH_BOTTOM([
+ #endif
+
+ #if ZEND_BROKEN_SPRINTF
++#ifdef __cplusplus
++extern "C" {
++#endif
+ int zend_sprintf(char *buffer, const char *format, ...);
++#ifdef __cplusplus
++}
++#endif
+ #else
+ # define zend_sprintf sprintf
+ #endif
 diff --git a/acinclude.m4 b/acinclude.m4
 index 168c465f8d..6c087d152f 100644
 --- a/acinclude.m4
