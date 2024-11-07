@@ -4,7 +4,7 @@ class VshMariadb104 < Formula
   url "https://downloads.mariadb.com/MariaDB/mariadb-10.4.34/source/mariadb-10.4.34.tar.gz"
   sha256 "c657bdbca790c3106dc781a207f4b67d467571945164725d37cc7e42cc2a590a"
   license "GPL-2.0-only"
-  revision 1
+  revision 2
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -16,6 +16,7 @@ class VshMariadb104 < Formula
   depends_on "pkg-config" => :build
   depends_on "groonga"
   depends_on "openssl@3"
+  depends_on "gnutls"
   depends_on "pcre2"
   depends_on "lz4"
   depends_on "lzo"
@@ -60,19 +61,15 @@ class VshMariadb104 < Formula
       -DINSTALL_DOCDIR=share/doc/#{name}
       -DINSTALL_INFODIR=share/info
       -DINSTALL_MYSQLSHAREDIR=share/mysql
-      -DWITH_READLINE=yes
       -DWITH_SSL=yes
       -DWITH_UNIT_TESTS=OFF
       -DDEFAULT_CHARSET=utf8mb4
       -DDEFAULT_COLLATION=utf8mb4_general_ci
       -DINSTALL_SYSCONFDIR=#{etc}/#{name}
-      -DCOMPILATION_COMMENT=Homebrew
+      -DCOMPILATION_COMMENT=valet.sh
       -DWITH_READLINE=NO
       -DPLUGIN_TOKUDB=NO
     ]
-
-    # disable TokuDB, which is currently not supported on macOS
-    args << "-DPLUGIN_TOKUDB=NO"
 
     system "cmake", "-S", ".", "-B", "_build", *std_cmake_args, *args
     system "cmake", "--build", "_build"
