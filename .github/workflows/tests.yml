@@ -3,7 +3,9 @@ name: 'tests'
 on:
   schedule:
     - cron: "30 3 * * 0"
-
+  push:
+    branches:
+      - master
 jobs:
   tests-on-macos-13:
     runs-on: macos-13
