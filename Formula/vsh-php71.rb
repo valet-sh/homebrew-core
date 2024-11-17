@@ -5,7 +5,7 @@ class VshPhp71 < Formula
   version "7.1.33"
   sha256 "427832fcc52d9f81d7a22aff4c6fdbc18e295a4af16b4d4bac81f044204e6649"
   license "PHP-3.01"
-  revision 500
+  revision 501
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
