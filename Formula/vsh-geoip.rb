@@ -3,16 +3,16 @@ class VshGeoip < Formula
   homepage "https://github.com/maxmind/geoip-api-c"
   url "https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz"
   sha256 "1dfb748003c5e4b7fd56ba8c4cd786633d5d6f409547584f6910398389636f80"
-  revision 1
+  revision 2
   license "LGPL-2.1-or-later"
   head "https://github.com/maxmind/geoip-api-c.git", branch: "main"
 
-  conflicts_with "geoip"
+  conflicts_with "geoip",
     because: "geoip has been disabled"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3d9cffc271f2bd86bb653ceb005bcda3cdff18ff2e4f0af75b48320fd0093313"
+    sha256 ventura: "9a0ea838258296227ed1c742048360a2bf0199afed19922a8358623a6b592786"
   end
 
   resource "database" do
