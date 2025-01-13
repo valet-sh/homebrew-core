@@ -7,7 +7,7 @@ class VshGeoip < Formula
   license "LGPL-2.1-or-later"
   head "https://github.com/maxmind/geoip-api-c.git", branch: "main"
 
-  conflicts_with "geoip"
+  conflicts_with "geoip",
     because: "geoip has been disabled"
 
   bottle do
