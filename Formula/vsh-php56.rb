@@ -5,7 +5,7 @@ class VshPhp56 < Formula
   version "5.6.40"
   sha256 "62708d8f19bf4d7539587a046c4c92a428d7787391682bcd71bec1bf2b0edfdb"
   license "PHP-3.01"
-  revision 505
+  revision 506
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -44,7 +44,7 @@ class VshPhp56 < Formula
   depends_on "tidy-html5"
   depends_on "unixodbc"
   depends_on "imagemagick"
-  depends_on "geoip"
+  depends_on "vsh-geoip"
 
   uses_from_macos "bzip2"
   uses_from_macos "libedit"
