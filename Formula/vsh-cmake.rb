@@ -7,11 +7,11 @@ class VshCmake < Formula
   sha256 "eb9c787e078848dc493f4f83f8a4bbec857cd1f38ab6425ce8d2776a9f6aa6fb"
   license "BSD-3-Clause"
   head "https://gitlab.kitware.com/cmake/cmake.git", branch: "master"
-  revision 4
+  revision 6
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "9606f017fa37917757bbf9f7c6c1fb637039012d8d86907e1585d88478e5b0ab"
+    sha256 ventura: "c7ad7b451dea1a2d79b44c43f15356959dee780ca06ef52296accdc0a68ebef8"
   end
 
   uses_from_macos "ncurses"
