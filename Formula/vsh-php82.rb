@@ -5,7 +5,7 @@ class VshPhp82 < Formula
   mirror "https://fossies.org/linux/www/php-8.2.25.tar.xz"
   sha256 "330b54876ea1d05ade12ee9726167332058bccd58dffa1d4e12117f6b4f616b9"
   license "PHP-3.01"
-  revision 24
+  revision 25
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
