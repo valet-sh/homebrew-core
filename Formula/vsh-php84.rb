@@ -18,6 +18,7 @@ class VshPhp84 < Formula
   depends_on "argon2"
   depends_on "aspell"
   depends_on "autoconf"
+  depends_on "capstone"
   depends_on "curl"
   depends_on "freetds"
   depends_on "gd"
