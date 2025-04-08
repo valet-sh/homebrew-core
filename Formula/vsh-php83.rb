@@ -299,7 +299,7 @@ class VshPhp83 < Formula
     run ["#{opt_sbin}/php-fpm#{bin_suffix}", "--nodaemonize"]
     keep_alive true
     working_dir var
-    error_log_path var/"log/vsh-php82.log"
+    error_log_path var/"log/vsh-php83.log"
   end
 
   test do
