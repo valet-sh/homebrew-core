@@ -69,6 +69,9 @@ class VshPhp83 < Formula
 
     ENV["lt_cv_path_SED"] = "sed"
 
+    # Identify build provider in php -v output and phpinfo()
+    ENV["PHP_BUILD_PROVIDER"] = "valet.sh"
+
     # system pkg-config missing
     ENV["KERBEROS_CFLAGS"] = " "
     if OS.mac?
