@@ -69,6 +69,7 @@ class VshMysql84 < Formula
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
     args = %W[
       -DCMAKE_INSTALL_PREFIX=#{libexec}
+      -DFORCE_INSOURCE_BUILD=1
       -DCOMPILATION_COMMENT=valet-sh
       -DINSTALL_DOCDIR=share/doc/#{name}
       -DINSTALL_INCLUDEDIR=include/mysql
@@ -91,7 +92,7 @@ class VshMysql84 < Formula
       -DWITH_UNIT_TESTS=OFF
     ]
 
-    system "cmake", "-S", ".", "-B", "build", *args, *std_cmake_args
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, *args
     system "cmake", "--build", "build"
     system "cmake", "--install", "build"
 
