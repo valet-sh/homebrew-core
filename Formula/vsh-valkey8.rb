@@ -14,7 +14,7 @@ class VshValkey8 < Formula
   head "https://github.com/valkey-io/valkey.git", branch: "unstable"
 
   bottle do
-    sha256 cellar: :any,                 ventura:       "14cd2ea4515f6280bfc396a7e56fa63ce3d5dc94a99278081303edb277391a1a"
+    sha256 cellar: :any,                 ventura: "5c4a6688a325b9e0b251d52f06d7e5f5f66cc2b4eb28a27f954d76172c61e104"
   end
 
   depends_on "openssl@3"
