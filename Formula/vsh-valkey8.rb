@@ -3,6 +3,7 @@ class VshValkey8 < Formula
   homepage "https://valkey.io"
   url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.1.tar.gz"
   sha256 "3355fbd5458d853ab201d2c046ffca9f078000587ccbe9a6c585110f146ad2c5"
+  revision 1
   license all_of: [
     "BSD-3-Clause",
     "BSD-2-Clause", # deps/jemalloc, deps/linenoise, src/lzf*
