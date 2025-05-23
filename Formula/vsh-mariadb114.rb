@@ -84,8 +84,8 @@ class VshMariadb114 < Formula
     system "cmake", "--install", "_build"
 
     # Save space
-    (libexec/"mariadb-test").rmtree
-    (libexec/"sql-bench").rmtree
+    rm_r libexec/"mariadb-test"
+    rm_r libexec/"sql-bench"
 
     # Don't create databases inside of the prefix!
     # See: https://github.com/Homebrew/homebrew/issues/4975
