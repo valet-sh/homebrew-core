@@ -4,11 +4,11 @@ class VshMariadb114 < Formula
   url "https://archive.mariadb.org/mariadb-11.4.5/source/mariadb-11.4.5.tar.gz"
   sha256 "ff6595f8c482f9921e39b97fa1122377a69f0dcbd92553c6b9032cbf0e9b5354"
   license "GPL-2.0-only"
-  revision 1
+  revision 2
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d48bad31a3863adba11e11b40b01190ccf75762622d052ee846b9750a981282b"
+    sha256 ventura: "9e341163035ad1259f89b29a08b5cbaf85a454c837f7b46c2370aac703b9d60b"
   end
 
   depends_on "bison" => :build
@@ -84,8 +84,8 @@ class VshMariadb114 < Formula
     system "cmake", "--install", "_build"
 
     # Save space
-    (libexec/"mariadb-test").rmtree
-    (libexec/"sql-bench").rmtree
+    rm_r libexec/"mariadb-test"
+    rm_r libexec/"sql-bench"
 
     # Don't create databases inside of the prefix!
     # See: https://github.com/Homebrew/homebrew/issues/4975
