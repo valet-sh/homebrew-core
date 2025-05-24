@@ -4,11 +4,11 @@ class VshMariadb114 < Formula
   url "https://archive.mariadb.org/mariadb-11.4.5/source/mariadb-11.4.5.tar.gz"
   sha256 "ff6595f8c482f9921e39b97fa1122377a69f0dcbd92553c6b9032cbf0e9b5354"
   license "GPL-2.0-only"
-  revision 2
+  revision 3
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "9e341163035ad1259f89b29a08b5cbaf85a454c837f7b46c2370aac703b9d60b"
+    sha256 ventura: "a082b8a47544a64f9a1323a2d2efcd1f7b312f359b25ba3b8490014e8478204d"
   end
 
   depends_on "bison" => :build
@@ -199,7 +199,7 @@ class VshMariadb114 < Formula
   end
 
   service do 
-    run [libexec/"bin/mariadbd_safe", "--defaults-file=#{etc}/vsh-mariadb114/my.cnf", "--datadir=#{var}/vsh-mariadb114"]
+    run [libexec/"bin/mariadbd-safe", "--defaults-file=#{etc}/vsh-mariadb114/my.cnf", "--datadir=#{var}/vsh-mariadb114"]
     keep_alive true
     working_dir var/"vsh-mariadb114"
   end
