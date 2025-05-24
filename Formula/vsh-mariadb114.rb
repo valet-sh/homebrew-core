@@ -199,7 +199,7 @@ class VshMariadb114 < Formula
   end
 
   service do 
-    run [libexec/"bin/mariadbd_safe", "--defaults-file=#{etc}/vsh-mariadb114/my.cnf", "--datadir=#{var}/vsh-mariadb114"]
+    run [libexec/"bin/mariadbd-safe", "--defaults-file=#{etc}/vsh-mariadb114/my.cnf", "--datadir=#{var}/vsh-mariadb114"]
     keep_alive true
     working_dir var/"vsh-mariadb114"
   end
