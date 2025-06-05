@@ -84,8 +84,8 @@ class VshMariadb104 < Formula
     (libexec/"bin").install_symlink libexec/"scripts/mysql_install_db"
 
     # Save space
-    rm_r libexec/"mariadb-test"
-    rm_r libexec/"sql-bench"
+    #rm_r libexec/"mariadb-test"
+    #rm_r libexec/"sql-bench"
 
     # Link the setup script into bin
     #bin.install_symlink prefix/"scripts/mysql_install_db"
