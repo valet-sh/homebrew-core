@@ -66,6 +66,7 @@ class VshMariadb106 < Formula
       -DINSTALL_SYSCONFDIR=#{etc}/#{name}
       -DCOMPILATION_COMMENT=valet.sh
       -DPLUGIN_ROCKSDB=NO
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     ]
 
     system "cmake", ".", *std_cmake_args, *args
