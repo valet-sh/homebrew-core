@@ -75,8 +75,8 @@ class VshMariadb106 < Formula
     system "make", "install"
 
     # Save space
-    rm_r libexec/"mariadb-test"
-    rm_r libexec/"sql-bench"
+    #rm_r libexec/"mariadb-test"
+    #rm_r libexec/"sql-bench"
 
     # Don't create databases inside of the prefix!
     # See: https://github.com/Homebrew/homebrew/issues/4975
