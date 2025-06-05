@@ -4,11 +4,11 @@ class VshMariadb104 < Formula
   url "https://downloads.mariadb.com/MariaDB/mariadb-10.4.34/source/mariadb-10.4.34.tar.gz"
   sha256 "c657bdbca790c3106dc781a207f4b67d467571945164725d37cc7e42cc2a590a"
   license "GPL-2.0-only"
-  revision 16
+  revision 17
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3ab1ae8c2cd86cabb5058fc422f737be50c6c1c3b7559527870f7017191b966a"
+    sha256 ventura: "167c5fc26b323984b20159e3c734957bce1eee65644a6eeee586c7d8915284e8"
   end
 
   depends_on "bison" => :build
@@ -69,6 +69,7 @@ class VshMariadb104 < Formula
       -DCOMPILATION_COMMENT=valet.sh
       -DWITH_READLINE=NO
       -DPLUGIN_TOKUDB=NO
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     ]
 
     system "cmake", "-S", ".", "-B", "_build", *std_cmake_args, *args
@@ -83,8 +84,8 @@ class VshMariadb104 < Formula
     (libexec/"bin").install_symlink libexec/"scripts/mysql_install_db"
 
     # Save space
-    #(prefix/"mysql-test").rmtree
-    #(prefix/"sql-bench").rmtree
+    #rm_r libexec/"mariadb-test"
+    #rm_r libexec/"sql-bench"
 
     # Link the setup script into bin
     #bin.install_symlink prefix/"scripts/mysql_install_db"

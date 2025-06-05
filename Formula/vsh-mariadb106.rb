@@ -4,11 +4,11 @@ class VshMariadb106 < Formula
   url "https://archive.mariadb.org/mariadb-10.6.18/source/mariadb-10.6.18.tar.gz"
   sha256 "6898a1111f47130709e28ba2c7bd1a57e4bb57101f6e109e597d51e6d385cf18"
   license "GPL-2.0-only"
-  revision 44
+  revision 45
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d48bad31a3863adba11e11b40b01190ccf75762622d052ee846b9750a981282b"
+    sha256 ventura: "0a293214d906e7077be80f661b58ceef91e955eb8939fff02d580156d2dfef94"
   end
 
   depends_on "bison" => :build
@@ -66,6 +66,7 @@ class VshMariadb106 < Formula
       -DINSTALL_SYSCONFDIR=#{etc}/#{name}
       -DCOMPILATION_COMMENT=valet.sh
       -DPLUGIN_ROCKSDB=NO
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     ]
 
     system "cmake", ".", *std_cmake_args, *args
@@ -74,8 +75,8 @@ class VshMariadb106 < Formula
     system "make", "install"
 
     # Save space
-    (libexec/"mysql-test").rmtree
-    (libexec/"sql-bench").rmtree
+    #rm_r libexec/"mariadb-test"
+    #rm_r libexec/"sql-bench"
 
     # Don't create databases inside of the prefix!
     # See: https://github.com/Homebrew/homebrew/issues/4975
