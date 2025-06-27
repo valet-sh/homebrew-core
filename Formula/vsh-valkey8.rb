@@ -1,8 +1,8 @@
 class VshValkey8 < Formula
   desc "High-performance data structure server that primarily serves key/value workloads"
   homepage "https://valkey.io"
-  url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.1.tar.gz"
-  sha256 "3355fbd5458d853ab201d2c046ffca9f078000587ccbe9a6c585110f146ad2c5"
+  url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.2.tar.gz"
+  sha256 "747b272191c15c7387f4ad3b3e7eda16deb1cffc6425e0571547f54e4d2e3646"
   revision 1
   license all_of: [
     "BSD-3-Clause",
