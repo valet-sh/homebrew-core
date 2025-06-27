@@ -3,11 +3,11 @@ class VshMcrypt < Formula
   homepage "https://mcrypt.sourceforge.net/"
   url "https://downloads.sourceforge.net/project/mcrypt/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz"
   sha256 "5145aa844e54cca89ddab6fb7dd9e5952811d8d787c4f4bf27eb261e6c182098"
-  revision 2
+  revision 3
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "1741955392fcc16c097ec9dc7e1515db2dcbf5c0cc2031be811b8aa629bbf5e0"
+    sha256 ventura: "c5858014a9c50a5c560f5f666cee9bf67c9eb5a864b7f78dfb2c977eab89c279"
   end
 
   # Added automake as a build dependency to update config files in libmcrypt.
