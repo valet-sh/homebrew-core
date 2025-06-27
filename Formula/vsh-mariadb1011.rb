@@ -4,7 +4,7 @@ class VshMariadb1011 < Formula
   url "https://archive.mariadb.org/mariadb-10.11.13/source/mariadb-10.11.13.tar.gz"
   sha256 "f8b734749fbd652ea4e255be8cc7880f98d07b6a7feb4e1ea8c736cb480d23e4"
   license "GPL-2.0-only"
-  revision 1
+  revision 2
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -137,7 +137,7 @@ class VshMariadb1011 < Formula
         socket =
 
         bind-address = 127.0.0.1
-        port		= 3323
+        port		= 3324
         basedir		= #{opt_libexec}
         datadir		= #{datadir}
         tmpdir		= /tmp
@@ -160,7 +160,7 @@ class VshMariadb1011 < Formula
         [mysqldump]
         user = root
         protocol=tcp
-        port=3323
+        port=3324
         host=127.0.0.1
         quick
         quote-names
@@ -193,7 +193,7 @@ class VshMariadb1011 < Formula
 
   def caveats
     s = <<~EOS
-      MariaDB 10.11 is configured to only allow connections from 127.0.0.1 on port 3323 by default
+      MariaDB 10.11 is configured to only allow connections from 127.0.0.1 on port 3324 by default
 
       To connect run:
           mariadb10.11 -uroot
