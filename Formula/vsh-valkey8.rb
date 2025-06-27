@@ -1,8 +1,8 @@
 class VshValkey8 < Formula
   desc "High-performance data structure server that primarily serves key/value workloads"
   homepage "https://valkey.io"
-  url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.1.tar.gz"
-  sha256 "3355fbd5458d853ab201d2c046ffca9f078000587ccbe9a6c585110f146ad2c5"
+  url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.2.tar.gz"
+  sha256 "747b272191c15c7387f4ad3b3e7eda16deb1cffc6425e0571547f54e4d2e3646"
   revision 1
   license all_of: [
     "BSD-3-Clause",
@@ -14,7 +14,7 @@ class VshValkey8 < Formula
   head "https://github.com/valkey-io/valkey.git", branch: "unstable"
 
   bottle do
-    sha256 cellar: :any,                 ventura: "5c4a6688a325b9e0b251d52f06d7e5f5f66cc2b4eb28a27f954d76172c61e104"
+    sha256 cellar: :any,                 ventura: "729cedf2d7af910026e5d4bdae4f2aa7a174e18e647e454d27ba56c1d940ba2c"
   end
 
   depends_on "openssl@3"
