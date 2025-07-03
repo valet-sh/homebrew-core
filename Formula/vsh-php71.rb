@@ -5,11 +5,11 @@ class VshPhp71 < Formula
   version "7.1.33"
   sha256 "427832fcc52d9f81d7a22aff4c6fdbc18e295a4af16b4d4bac81f044204e6649"
   license "PHP-3.01"
-  revision 531
+  revision 532
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "71f55f29544adcd3e72823004788fb1a9cacd24db8a8845bf698e6d7f32217e0"
+    sha256 ventura: "6cb4180925ee68aff9c4d4ec620bfd53ac16a29015c47cea3263e6cb278c0a30"
   end
 
   depends_on "bison" => :build
