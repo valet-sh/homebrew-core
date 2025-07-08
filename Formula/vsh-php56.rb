@@ -1,19 +1,19 @@
 class VshPhp56 < Formula
   desc "General-purpose scripting language"
   homepage "https://secure.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/5efb194ea3d54460a321f804140776909de61426.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/2caa81b25793a7c1878530ed80a289b070cfa44f.tar.gz"
   version "5.6.40"
-  sha256 "62708d8f19bf4d7539587a046c4c92a428d7787391682bcd71bec1bf2b0edfdb"
+  sha256 "b3397170680a3fe9f1ba36298794af232f76c1eb6d647cd0fe5581a5f233ffc3"
   license "PHP-3.01"
-  revision 539
+  revision 560
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "9b2f9abd62e172d47c7697fa3c1e3cde5b9561f78a23c76b7086c8d988a298ce"
+    sha256 ventura: "0bb69363e6b5eb13369c584d5eaed7ad4fffa26649c9e8e3b3211f8c9b7f66e3"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -22,16 +22,14 @@ class VshPhp56 < Formula
   depends_on "curl"
   depends_on "freetds"
   depends_on "freetype"
-  depends_on "gettext"
-  depends_on "glib"
   depends_on "gd"
+  depends_on "gettext"
   depends_on "gmp"
-  depends_on "icu4c@75"
-  depends_on "krb5"
+  depends_on "icu4c@77"
   depends_on "jpeg"
+  depends_on "krb5"
   depends_on "libpng"
   depends_on "libpq"
-  depends_on "libyaml"
   depends_on "libtool"
   depends_on "libx11"
   depends_on "libxpm"
@@ -41,8 +39,6 @@ class VshPhp56 < Formula
   depends_on "openssl@3"
   depends_on "pcre"
   depends_on "sqlite"
-  depends_on "tidy-html5"
-  depends_on "unixodbc"
   depends_on "imagemagick"
   depends_on "vsh-geoip"
 
@@ -113,6 +109,10 @@ class VshPhp56 < Formula
     # sdk path or it won't find the headers
     headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
 
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
+
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20131226"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
 
@@ -137,7 +137,9 @@ class VshPhp56 < Formula
       --enable-mbregex
       --enable-mbstring
       --enable-mysqlnd
+      --enable-opcache
       --enable-pcntl
+      --enable-phpdbg
       --enable-shmop
       --enable-soap
       --enable-sockets
@@ -146,23 +148,20 @@ class VshPhp56 < Formula
       --enable-sysvshm
       --enable-wddx
       --enable-zip
-      --with-bz2#{headers_path}
       --with-curl=#{Formula["curl"].opt_prefix}
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
       --with-gd=#{Formula["gd"].opt_prefix}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["icu4c@75"].opt_prefix}
+      --with-icu-dir=#{Formula["icu4c@77"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
       --with-ldap-sasl#{headers_path}
-      --with-libedit#{headers_path}
-      --with-libxml-dir#{headers_path}
       --with-libzip
       --with-mcrypt=#{Formula["vsh-mcrypt"].opt_prefix}
       --with-mhash#{headers_path}
@@ -184,6 +183,9 @@ class VshPhp56 < Formula
       --with-unixODBC=#{Formula["unixodbc"].opt_prefix}
       --with-xmlrpc
       --with-xpm-dir=#{Formula["libxpm"].opt_prefix}
+      --with-bz2#{headers_path}
+      --with-libedit#{headers_path}
+      --with-libxml-dir#{headers_path}
       --with-ndbm#{headers_path}
       --with-xsl#{headers_path}
       --with-zlib#{headers_path}

@@ -5,11 +5,11 @@ class VshPhp70 < Formula
   version "7.0.33"
   sha256 "a40f969f584fb35b1caf1d2f5c45dfceee92f7e9d8e61b26b806f7537c5c645b"
   license "PHP-3.01"
-  revision 541
+  revision 550
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "f2441080980a2dca2b21fac5cfa4e93842a45a1331f1851f72665ab033769fc4"
+    sha256 ventura: "5990b32f91197c9fe68becd34b1f689e43e793446fe69b74b5cc97ef0a75597a"
   end
 
   depends_on "bison" => :build
@@ -215,6 +215,10 @@ class VshPhp70 < Formula
         "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
       inreplace "php.ini-#{mode}", /; ?openssl\.capath=/,
         "openssl.capath = \"#{openssl.pkgetc}/certs\""
+    end
+
+    inreplace "sapi/fpm/www.conf" do |s|
+      s.gsub!(/listen =.*/, "listen = /tmp/#{name}.sock")
     end
 
     config_files = {
