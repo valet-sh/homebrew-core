@@ -13,7 +13,7 @@ class VshValkey8 < Formula
   ]
 
   bottle do
-    sha256 ventura: "6956c0af4e3d35a044ac5541d60460b7bf004bc6a93331dd9e028193589bb06d"
+    sha256 ventura: "1407f2aed73d5e8a2ce4b6348d5566330068dff980dcdaeff20258d43d917596"
   end
 
   depends_on "openssl@3"
