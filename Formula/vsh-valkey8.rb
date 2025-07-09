@@ -3,7 +3,7 @@ class VshValkey8 < Formula
   homepage "https://valkey.io"
   url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.2.tar.gz"
   sha256 "747b272191c15c7387f4ad3b3e7eda16deb1cffc6425e0571547f54e4d2e3646"
-  revision 1
+  revision 2
   license all_of: [
     "BSD-3-Clause",
     "BSD-2-Clause", # deps/jemalloc, deps/linenoise, src/lzf*
@@ -14,7 +14,7 @@ class VshValkey8 < Formula
   head "https://github.com/valkey-io/valkey.git", branch: "unstable"
 
   bottle do
-    sha256 cellar: :any,                 ventura: "729cedf2d7af910026e5d4bdae4f2aa7a174e18e647e454d27ba56c1d940ba2c"
+    sha256 cellar: :any,                 ventura: "d19e8d0b803fa6b49e71aa432b26f53c92847863405398ca703d549c359fe44e"
   end
 
   depends_on "openssl@3"
