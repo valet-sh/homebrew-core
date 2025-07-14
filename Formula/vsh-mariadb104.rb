@@ -1,14 +1,14 @@
 class VshMariadb104 < Formula
   desc "Drop-in replacement for MySQL"
   homepage "https://mariadb.org/"
-  url "https://downloads.mariadb.com/MariaDB/mariadb-10.4.34/source/mariadb-10.4.34.tar.gz"
+  url "https://mirror.valet.sh/mariadb-10.4.34.tar.gz"
   sha256 "c657bdbca790c3106dc781a207f4b67d467571945164725d37cc7e42cc2a590a"
   license "GPL-2.0-only"
-  revision 18
+  revision 22
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d75ce6e72dd510dd248858aa737eb8c3e9873c6d365a20bbff5f4969990b901d"
+    sha256 ventura: "4487faff402a4e8b6db732a0b7c526637a1a0cc2a924a6d86b2cd86758af7dc9"
   end
 
   depends_on "bison" => :build
