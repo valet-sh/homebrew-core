@@ -1,5 +1,4 @@
 class VshMysql84 < Formula
-  # .
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.4/en/"
   url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.4.tar.gz"

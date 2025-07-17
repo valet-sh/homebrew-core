@@ -1,5 +1,4 @@
 class VshMysql57 < Formula
-  # .
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/5.7/en/"
   url "https://cdn.mysql.com/Downloads/MySQL-5.7/mysql-boost-5.7.44.tar.gz"
@@ -12,7 +11,7 @@ class VshMysql57 < Formula
     sha256 ventura: "07b1fdcec3933a410d4937a13cd2d50dd22df68cd2362f25279ee554961cfe75"
   end
 
-  depends_on "cmake" => :build
+  depends_on "vsh-cmake" => :build
   depends_on "libevent"
   depends_on "lz4"
   depends_on "openssl@3"
@@ -21,6 +20,8 @@ class VshMysql57 < Formula
   uses_from_macos "curl"
   uses_from_macos "cyrus-sasl"
   uses_from_macos "libedit"
+
+  fails_with gcc: "5"
 
   def datadir
     var/"#{name}"
