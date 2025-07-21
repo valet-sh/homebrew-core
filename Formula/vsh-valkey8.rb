@@ -39,7 +39,7 @@ class VshValkey8 < Formula
 
     # Fix up default conf file to match our paths
     inreplace "valkey.conf" do |s|
-      s.gsub! "/var/run/valkey_6379.pid", vardir/"run/valkey.pid"
+      s.gsub! "/var/run/valkey_6379.pid", vardir/"run/valkey8.pid"
       s.gsub! "dir ./", "dir #{vardir}/db/valkey/"
       s.gsub! "port 6379", "port 6389"
       s.sub!(/^bind .*$/, "bind 127.0.0.1 ::1")
