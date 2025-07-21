@@ -3,7 +3,7 @@ class VshValkey8 < Formula
   homepage "https://valkey.io"
   url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.2.tar.gz"
   sha256 "747b272191c15c7387f4ad3b3e7eda16deb1cffc6425e0571547f54e4d2e3646"
-  revision 4
+  revision 6
   license all_of: [
     "BSD-3-Clause",
     "BSD-2-Clause", # deps/jemalloc, deps/linenoise, src/lzf*
@@ -14,7 +14,7 @@ class VshValkey8 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "0ee84ac978dbe300d73c6a7dfcc745f9a565402edcbfd55d0843a85f271399b1"
+    sha256 ventura: "c6ed56755652385c0404a437e765228ffbe10620ed510f5697ee548008797f11"
   end
 
   depends_on "openssl@3"
@@ -39,7 +39,7 @@ class VshValkey8 < Formula
 
     # Fix up default conf file to match our paths
     inreplace "valkey.conf" do |s|
-      s.gsub! "/var/run/valkey_6379.pid", vardir/"run/valkey.pid"
+      s.gsub! "/var/run/valkey_6379.pid", vardir/"run/valkey8.pid"
       s.gsub! "dir ./", "dir #{vardir}/db/valkey/"
       s.gsub! "port 6379", "port 6389"
       s.sub!(/^bind .*$/, "bind 127.0.0.1 ::1")
