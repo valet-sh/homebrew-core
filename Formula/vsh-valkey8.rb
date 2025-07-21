@@ -14,7 +14,7 @@ class VshValkey8 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "0ee84ac978dbe300d73c6a7dfcc745f9a565402edcbfd55d0843a85f271399b1"
+    sha256 ventura: "c6ed56755652385c0404a437e765228ffbe10620ed510f5697ee548008797f11"
   end
 
   depends_on "openssl@3"
