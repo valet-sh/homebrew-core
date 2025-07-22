@@ -1,19 +1,19 @@
 class VshPhp70 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/e74d83cb136282e1fda676bf22a7cc7f5578626b.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/d91f3b4e4ff74ed2432010dca9ae9ce5de781670.tar.gz"
   version "7.0.33"
-  sha256 "a40f969f584fb35b1caf1d2f5c45dfceee92f7e9d8e61b26b806f7537c5c645b"
+  sha256 "2d80d4186c14aa7e75cca38105359eda808a512a57824462e84e96d5b1be6b5c"
   license "PHP-3.01"
-  revision 550
+  revision 551
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "5990b32f91197c9fe68becd34b1f689e43e793446fe69b74b5cc97ef0a75597a"
+    sha256 ventura: "f5bf95d90670f963d910ccaea48f05fcde5ed7dd78a448bb1372310b441aeee4"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -26,7 +26,7 @@ class VshPhp70 < Formula
   depends_on "gd"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -108,6 +108,10 @@ class VshPhp70 < Formula
     # sdk path or it won't find the headers
     headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
 
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
+
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20151012"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
 
@@ -125,7 +129,6 @@ class VshPhp70 < Formula
       --enable-bcmath
       --enable-calendar
       --enable-dba
-      --enable-dtrace
       --enable-exif
       --enable-ftp
       --enable-fpm
@@ -145,29 +148,25 @@ class VshPhp70 < Formula
       --enable-sysvshm
       --enable-wddx
       --enable-zip
-      --with-bz2#{headers_path}
       --with-curl=#{Formula["curl"].opt_prefix}
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
       --with-gd=#{Formula["gd"].opt_prefix}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["icu4c@75"].opt_prefix}
+      --with-icu-dir=#{Formula["icu4c@77"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
       --with-ldap-sasl#{headers_path}
-      --with-libxml-dir#{headers_path}
-      --with-libedit#{headers_path}
       --with-libzip
       --with-mcrypt=#{Formula["vsh-mcrypt"].opt_prefix}
       --with-mhash#{headers_path}
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
-      --with-ndbm#{headers_path}
       --with-openssl=#{Formula["openssl@3"].opt_prefix}
       --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
@@ -184,6 +183,11 @@ class VshPhp70 < Formula
       --with-webp-dir=#{Formula["webp"].opt_prefix}
       --with-xmlrpc
       --with-xpm-dir=#{Formula["libxpm"].opt_prefix}
+      --enable-dtrace
+      --with-bz2#{headers_path}
+      --with-libedit#{headers_path}
+      --with-libxml-dir#{headers_path}
+      --with-ndbm#{headers_path}
       --with-xsl#{headers_path}
       --with-zlib#{headers_path}
     ]
