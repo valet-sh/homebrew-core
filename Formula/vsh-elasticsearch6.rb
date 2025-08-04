@@ -3,12 +3,12 @@ class VshElasticsearch6 < Formula
   homepage "https://www.elastic.co/products/elasticsearch"
   url "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-6.8.22.tar.gz"
   sha256 "836a50df324a98837dcadbc7d55782cc9525f15cc6a8aa0c657e199667ebb996"
-  revision 13
+  revision 14
   license "Apache-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "20d085ef883e46fc63c7f4562701ab56428ca03db0e45e40b120b313c2e69d52"
+    sha256 ventura: "26d5fc8f4d9756096387e64247f082fb54ad9ca5023944b57d88586f87969cdb"
   end
 
   depends_on "openjdk@8"
@@ -44,7 +44,7 @@ class VshElasticsearch6 < Formula
 
     # Move config files into etc
     (etc/"#{name}").install Dir[libexec/"config/*"]
-    (libexec/"config").rmtree
+    rm_f (libexec/"config")
 
     (libexec/"bin/elasticsearch-plugin-update").write <<~EOS
         #!/bin/bash
