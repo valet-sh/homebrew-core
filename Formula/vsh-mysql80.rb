@@ -1,8 +1,8 @@
 class VshMysql80 < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.40.tar.gz"
-  sha256 "eb34a23d324584688199b4222242f4623ea7bca457a3191cd7a106c63a7837d9"
+  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.43.tar.gz"
+  sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
   revision 25
 
@@ -197,7 +197,7 @@ class VshMysql80 < Formula
     s
   end
 
-  service do 
+  service do
     run [libexec/"bin/mysqld_safe", "--defaults-file=#{etc}/vsh-mysql80/my.cnf", "--datadir=#{var}/vsh-mysql80"]
     keep_alive true
     working_dir var/"vsh-mysql80"
