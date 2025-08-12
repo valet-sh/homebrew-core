@@ -4,11 +4,11 @@ class VshMysql84 < Formula
   url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.4.tar.gz"
   sha256 "fb290ef748894434085249c31bca52ac71853124446ab218bb3bc502bf0082a5"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 5
+  revision 10
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d0e8c7db912d9525d6d9e152cc6966a15b5f99eb78fa606131f5d3fe6d228bac"
+    sha256 ventura: "e7d74d3fed0310c22b32e1acf003cdc8a83fd7ccebd729bcf42b1a90e559a97f"
   end
 
   depends_on "bison" => :build
@@ -199,7 +199,7 @@ class VshMysql84 < Formula
     s
   end
 
-  service do 
+  service do
     run [libexec/"bin/mysqld_safe", "--defaults-file=#{etc}/vsh-mysql84/my.cnf", "--datadir=#{var}/vsh-mysql84"]
     keep_alive true
     working_dir var/"vsh-mysql84"
