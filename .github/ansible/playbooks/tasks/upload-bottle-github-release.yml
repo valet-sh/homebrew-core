@@ -45,3 +45,4 @@
       Authorization: "token {{ github_token }}"
     src: "{{ build_path }}/{{ bottle_local_filename }}"
     status_code: 201
+    timeout: 600
