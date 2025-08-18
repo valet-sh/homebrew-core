@@ -33,11 +33,6 @@ class VshMysql80 < Formula
   conflicts_with "mysql", "mariadb", "percona-server",
     because: "mysql, mariadb, and percona install the same binaries"
 
-  fails_with :gcc do
-    version "6"
-    cause "Requires C++17"
-  end
-
   # Patch out check for Homebrew `boost`.
    # This should not be necessary when building inside `brew`.
   # https://github.com/Homebrew/homebrew-test-bot/pull/820
@@ -51,12 +46,7 @@ class VshMysql80 < Formula
     etc/name
   end
 
-  def openssl_include_dir
-    #{Formula["openssl@3"]"/include"
-  end
-
   def install
-f install
     # Remove bundled libraries other than explicitly allowed below.
     # `boost` and `rapidjson` must use bundled copy due to patches.
     # `lz4` is still needed due to xxhash.c used by mysqlgcs
