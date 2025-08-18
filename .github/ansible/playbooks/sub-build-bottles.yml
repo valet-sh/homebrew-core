@@ -1,12 +1,5 @@
 ---
 
-
-- name: run 'brew unlink openssl@3 && brew link openssl@3'
-  shell: |
-    brew remove openssl@1.1 || true
-    brew unlink openssl@3 && brew link openssl@3
-  when: item == "vsh-mysql80.rb"
-
 - name: Build bottles for modified formulas
   shell: |
     brew install --build-bottle --formula {{ formula_path }}/{{ item }}
