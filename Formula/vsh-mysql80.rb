@@ -4,23 +4,23 @@ class VshMysql80 < Formula
   url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.43.tar.gz"
   sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 32
+  revision 33
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "a1c451189bb14c73f332fe2541d7c999e7241f34508b082af31a37bc32ceeaff"
+    sha256 ventura: "18aea8a34336afc61a3a25bedf328db819454c4bfcbbd919db90337f7e39b26f"
   end
 
   depends_on "bison" => :build
   depends_on "cmake" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "abseil"
-  depends_on "icu4c@76"
+  depends_on "icu4c@77"
   depends_on "libevent"
   depends_on "libfido2"
   depends_on "lz4"
   depends_on "openssl@3"
-  depends_on "protobuf"
+  depends_on "protobuf@29"
   depends_on "zlib" # Zlib 1.2.13+
   depends_on "zstd"
 
@@ -29,13 +29,9 @@ class VshMysql80 < Formula
   uses_from_macos "libedit"
 
 
+
   conflicts_with "mysql", "mariadb", "percona-server",
     because: "mysql, mariadb, and percona install the same binaries"
-
-  fails_with :gcc do
-    version "6"
-    cause "Requires C++17"
-  end
 
   # Patch out check for Homebrew `boost`.
    # This should not be necessary when building inside `brew`.
@@ -50,11 +46,12 @@ class VshMysql80 < Formula
     etc/name
   end
 
-  def openssl_include_dir
-    #{Formula["openssl@3"]"/include"
-  end
-
   def install
+    # Remove bundled libraries other than explicitly allowed below.
+    # `boost` and `rapidjson` must use bundled copy due to patches.
+    # `lz4` is still needed due to xxhash.c used by mysqlgcs
+    keep = %w[libbacktrace lz4 rapidjson unordered_dense xxhash]
+    (buildpath/"extra").each_child { |dir| rm_r(dir) unless keep.include?(dir.basename.to_s) }
 
     icu4c = deps.find { |dep| dep.name.match?(/^icu4c(@\d+)?$/) }
                 .to_formula
