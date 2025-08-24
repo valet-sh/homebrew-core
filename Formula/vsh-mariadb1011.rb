@@ -4,7 +4,7 @@ class VshMariadb1011 < Formula
   url "https://archive.mariadb.org/mariadb-10.11.13/source/mariadb-10.11.13.tar.gz"
   sha256 "f8b734749fbd652ea4e255be8cc7880f98d07b6a7feb4e1ea8c736cb480d23e4"
   license "GPL-2.0-only"
-  revision 3
+  revision 5
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
