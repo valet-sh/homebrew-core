@@ -2,6 +2,7 @@
 
 - name: Build bottles for modified formulas
   shell: |
+    brew uninstall cmake
     brew install --build-bottle --formula {{ formula_path }}/{{ item }}
     brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild
 
