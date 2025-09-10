@@ -4,7 +4,7 @@ class VshMysql80 < Formula
   url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.43.tar.gz"
   sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 37
+  revision 39
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
