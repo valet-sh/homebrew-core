@@ -32,7 +32,7 @@ jobs:
         arch --x86_64 /usr/local/bin/brew  install vsh-php81
         arch --x86_64 /usr/local/bin/brew  install vsh-php82
         arch --x86_64 /usr/local/bin/brew  install vsh-php83
-        arch --x86_64 /usr/local/bin/brew  install vsh-php85
+        arch --x86_64 /usr/local/bin/brew  install vsh-php84
   install-elasticsearch-x86:
     runs-on: macos-15
     steps:
