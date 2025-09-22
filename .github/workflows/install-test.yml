@@ -9,69 +9,99 @@ on:
 
 jobs:
   install-php-x86:
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v1
     - name: Install php services
       run: |
-        brew update || true
-        brew upgrade $(brew outdated --formula -q) || true
-        brew tap valet-sh/core
-        brew install vsh-php56
-        brew install vsh-php70
-        brew install vsh-php71
-        brew install vsh-php72
-        brew install vsh-php73
-        brew install vsh-php74
-        brew install vsh-php80
-        brew install vsh-php81
-        brew install vsh-php82
-        brew install vsh-php83
+        /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+        arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        arch --x86_64 /usr/local/bin/brew doctor || true
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
+        arch --x86_64 /usr/local/bin/brew  tap valet-sh/core
+        arch --x86_64 /usr/local/bin/brew  install vsh-php56
+        arch --x86_64 /usr/local/bin/brew  install vsh-php70
+        arch --x86_64 /usr/local/bin/brew  install vsh-php71
+        arch --x86_64 /usr/local/bin/brew  install vsh-php72
+        arch --x86_64 /usr/local/bin/brew  install vsh-php73
+        arch --x86_64 /usr/local/bin/brew  install vsh-php74
+        arch --x86_64 /usr/local/bin/brew  install vsh-php80
+        arch --x86_64 /usr/local/bin/brew  install vsh-php81
+        arch --x86_64 /usr/local/bin/brew  install vsh-php82
+        arch --x86_64 /usr/local/bin/brew  install vsh-php83
+        arch --x86_64 /usr/local/bin/brew  install vsh-php85
   install-elasticsearch-x86:
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v1
     - name: Install elasticsearch services
       run: |
-        brew update || true
-        brew upgrade $(brew outdated --formula -q) || true
-        brew tap valet-sh/core
-        brew install vsh-elasticsearch1
-        brew install vsh-elasticsearch2
-        brew install vsh-elasticsearch5
-        brew install vsh-elasticsearch6
-        brew install vsh-elasticsearch7
-        brew install vsh-elasticsearch8
+        /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+        arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        arch --x86_64 /usr/local/bin/brew doctor || true
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
+        arch --x86_64 /usr/local/bin/brew tap valet-sh/core
+        arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch1
+        arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch2
+        arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch5
+        arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch6
+        arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch7
+        arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch8
   install-opensearch-x86:
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v1
     - name: Install opensearch services
       run: |
-        brew update || true
-        brew upgrade $(brew outdated --formula -q) || true
-        brew tap valet-sh/core
-        brew install vsh-opensearch1
-        brew install vsh-opensearch2
+        /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+        arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        arch --x86_64 /usr/local/bin/brew doctor || true
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
+        arch --x86_64 /usr/local/bin/brew tap valet-sh/core
+        arch --x86_64 /usr/local/bin/brew install vsh-opensearch1
+        arch --x86_64 /usr/local/bin/brew install vsh-opensearch2
+        arch --x86_64 /usr/local/bin/brew install vsh-opensearch3
   install-mysql-x86:
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v1
     - name: Install mysql services
       run: |
-        brew update || true
-        brew upgrade $(brew outdated --formula -q) || true
-        brew tap valet-sh/core
-        brew install vsh-mysql57
-        brew install vsh-mysql80
+        /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+        arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        arch --x86_64 /usr/local/bin/brew doctor || true
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
+        arch --x86_64 /usr/local/bin/brew tap valet-sh/core
+        arch --x86_64 /usr/local/bin/brew install vsh-mysql57
+        arch --x86_64 /usr/local/bin/brew install vsh-mysql80
+        arch --x86_64 /usr/local/bin/brew install vsh-mysql84
   install-mariadb-x86:
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v1
     - name: Install mariadb services
       run: |
-        brew update || true
-        brew upgrade $(brew outdated --formula -q) || true
-        brew tap valet-sh/core
-        brew install vsh-mariadb104
-        brew install vsh-mariadb106
+        /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+        arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        arch --x86_64 /usr/local/bin/brew doctor || true
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+        arch --x86_64 /usr/local/bin/brew update || true
+        arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
+        arch --x86_64 /usr/local/bin/brew tap valet-sh/core
+        arch --x86_64 /usr/local/bin/brew install vsh-mariadb104
+        arch --x86_64 /usr/local/bin/brew install vsh-mariadb106
+        arch --x86_64 /usr/local/bin/brew install vsh-mariadb1011
+        arch --x86_64 /usr/local/bin/brew install vsh-mariadb114
