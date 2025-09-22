@@ -10,7 +10,7 @@ jobs:
 
   test-build-bottles:
     if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'test') }}"
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
 
       - uses: actions/setup-python@v4
@@ -22,9 +22,13 @@ jobs:
       - name: Install dependencies
         working-directory: .github/ansible
         run: |
-          brew doctor || true
-          brew update || true
-          brew upgrade $(brew outdated --formula -q) || true
+          /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+          arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          arch --x86_64 /usr/local/bin/brew doctor || true
+          arch --x86_64 /usr/local/bin/brew update || true
+          arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+          arch --x86_64 /usr/local/bin/brew update || true
+          arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true          
           python -m pip install --upgrade pip
           pip install -Iq -r requirements.txt
 
@@ -35,7 +39,7 @@ jobs:
 
   build-bottles:
     if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'build') }}"
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
       
       - uses: actions/setup-python@v1
@@ -47,9 +51,13 @@ jobs:
       - name: Install dependencies
         working-directory: .github/ansible
         run: |
-          brew doctor || true
-          brew update || true
-          brew upgrade $(brew outdated --formula -q) || true
+          /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+          arch --x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          arch --x86_64 /usr/local/bin/brew doctor || true
+          arch --x86_64 /usr/local/bin/brew update || true
+          arch --x86_64 /usr/local/bin/brew tap --force homebrew/core
+          arch --x86_64 /usr/local/bin/brew update || true
+          arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true          
           python -m pip install --upgrade pip
           pip install -Iq -r requirements.txt
 

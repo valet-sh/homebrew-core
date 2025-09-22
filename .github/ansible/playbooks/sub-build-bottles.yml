@@ -1,8 +1,7 @@
 ---
 
-- name: Build bottles for modified formulas
-  shell: |
-    brew uninstall cmake
-    brew install --build-bottle --formula {{ formula_path }}/{{ item }}
-    brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild
+- name: "run 'arch --x86_64 /usr/local/bin/brew install --build-bottle --formula {{ formula_path }}/{{ item }}'"
+  shell: "arch --x86_64 /usr/local/bin/brew install --build-bottle --formula {{ formula_path }}/{{ item }}"
 
+- name: "run 'arch --x86_64 /usr/local/bin/brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild'"
+  shell: "arch --x86_64 /usr/local/bin/brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild"
