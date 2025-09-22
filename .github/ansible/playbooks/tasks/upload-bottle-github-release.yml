@@ -35,7 +35,7 @@
     status_code: 204
   when:
     - github_release_asset_id is defined
-    - github_release_asset_id | length > 0
+    - github_release_asset_id is not none
 
 - name: debug var
   debug:
