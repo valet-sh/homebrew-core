@@ -8,7 +8,7 @@ class VshMailhog < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sequoia: "aa737a4c75635b266db094747da4bf84544b504362898a7f4c8a93fc4b40ece8"
+    sha256 sequoia: "dbb97c3d21a0c97d0d671c3f5ccd737715641ebcdfc5c82520198d139d0b6e3d"
   end
 
   depends_on "go" => :build
