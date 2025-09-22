@@ -42,7 +42,7 @@ jobs:
     runs-on: macos-15
     steps:
       
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.*'
 
@@ -75,7 +75,7 @@ jobs:
     needs: [build-bottles]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.*'
 
@@ -104,7 +104,7 @@ jobs:
     needs: [upload-bottles]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.*'
 
