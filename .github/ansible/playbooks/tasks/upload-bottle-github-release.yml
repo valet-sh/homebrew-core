@@ -23,14 +23,19 @@
   set_fact:
     github_release_asset_id: "{{ github_release_assets | json_query(github_json_filter) }}"
 
-- name: "delete existing bottle release asset"
+- debug:
+    msg: "{{ github_release_asset_id }}"
+
+- name: "run delete: 'https://api.github.com/repos/valet-sh/homebrew-core/releases/assets/{{ github_release_asset_id }}'"
   uri:
     url: "https://api.github.com/repos/valet-sh/homebrew-core/releases/assets/{{ github_release_asset_id }}"
     method: DELETE
     headers:
       Authorization: "token {{ github_token }}"
     status_code: 204
-  when: github_release_asset_id != ""
+  when:
+    - github_release_asset_id is defined
+    - github_release_asset_id is not none
 
 - name: debug var
   debug:
