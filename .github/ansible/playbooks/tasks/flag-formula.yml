@@ -1,5 +1,8 @@
 ---
 
+- debug:
+    msg: "{{ github_commit_filter_item }}"
+
 - name: "check if commit message contains a Formula bottle update"
   set_fact:
     commit_regex_obj: "{{ github_commit_filter_item.commit.message | regex_findall('(.+):(.*)bottle.') }}"
