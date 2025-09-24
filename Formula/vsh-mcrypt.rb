@@ -3,16 +3,17 @@ class VshMcrypt < Formula
   homepage "https://mcrypt.sourceforge.net/"
   url "https://downloads.sourceforge.net/project/mcrypt/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz"
   sha256 "5145aa844e54cca89ddab6fb7dd9e5952811d8d787c4f4bf27eb261e6c182098"
-  revision 3
+  revision 5
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "c5858014a9c50a5c560f5f666cee9bf67c9eb5a864b7f78dfb2c977eab89c279"
+    sha256 sequoia: "e6d7d95fc33e7e07b117e1c09f6476719a667bb9723f04036a144b39192d3632"
   end
 
   # Added automake as a build dependency to update config files in libmcrypt.
   # Please remove in future if there is a patch upstream which recognises aarch64 macos.
   depends_on "automake" => :build
+  depends_on "libtool"
   depends_on "mhash"
 
   uses_from_macos "zlib"
@@ -27,14 +28,18 @@ class VshMcrypt < Formula
   patch :DATA
 
   def install
-    # Fix compile with newer Clang
-    ENV.append_to_cflags "-Wno-implicit-function-declaration" if DevelopmentTools.clang_build_version >= 1200
+    # Work around configure issues with Xcode 12
+    ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
+    ENV.append "CFLAGS", "-Wno-implicit-int"
 
     resource("libmcrypt").stage do
       # Workaround for ancient config files not recognising aarch64 macos.
       %w[config.guess config.sub].each do |fn|
         cp "#{Formula["automake"].opt_prefix}/share/automake-#{Formula["automake"].version.major_minor}/#{fn}", fn
       end
+
+      # Avoid flat_namespace usage on macOS
+      inreplace "./configure", "${wl}-flat_namespace ${wl}-undefined ${wl}suppress", "" if OS.mac?
 
       system "./configure", "--prefix=#{prefix}",
                             "--mandir=#{man}"
