@@ -5,7 +5,7 @@
   ignore_errors: true
 
 - name: "run 'brew install --build-bottle --formula {{ formula_path }}/{{ item }}'"
-  shell: "brew install --build-bottle --formula {{ formula_path }}/{{ item }}"
+  shell: "brew install --build-bottle --formula {{ formula_path }}/{{ item }} -vvv"
 
 - name: "run 'brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild'"
   shell: "brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild"
