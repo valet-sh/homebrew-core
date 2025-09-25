@@ -4,11 +4,11 @@ class VshMysql84 < Formula
   url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.4.tar.gz"
   sha256 "fb290ef748894434085249c31bca52ac71853124446ab218bb3bc502bf0082a5"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 15
+  revision 16
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "7cddee2daea87561998b893127b2acc1af6e62beee5f54cf238c6f0836bf7104"
+    sha256 sonoma: "7138bded0f9f2a053c134a600ef4820e929dffc828660c5b6bc31f088d80845b"
   end
 
   depends_on "bison" => :build
@@ -44,12 +44,10 @@ class VshMysql84 < Formula
     etc/name
   end
 
-  def openssl_include_dir
-    #{Formula["openssl@3"]"/include"
-  end
-
   def install
-
+    # Remove bundled libraries other than explicitly allowed below.
+    # `boost` and `rapidjson` must use bundled copy due to patches.
+    # `lz4` is still needed due to xxhash.c used by mysqlgcs
     keep = %w[boost libbacktrace libcno lz4 rapidjson unordered_dense]
     (buildpath/"extra").each_child { |dir| rm_r(dir) unless keep.include?(dir.basename.to_s) }
 
