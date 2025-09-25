@@ -336,10 +336,10 @@ class VshPhp73 < Formula
     Utils.popen_read("#{bin}/php-config#{bin_suffix} --extension-dir").chomp
   end
 
-  service do 
+  service do
     php_version = @formula.version.to_s.split(".")[0..1].join(".")
     bin_suffix = php_version
-  
+
     run ["#{opt_sbin}/php-fpm#{bin_suffix}", "--nodaemonize"]
     keep_alive true
     working_dir var
