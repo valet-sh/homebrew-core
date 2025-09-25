@@ -1,14 +1,14 @@
 class VshMariadb114 < Formula
   desc "Drop-in replacement for MySQL"
   homepage "https://mariadb.org/"
-  url "https://archive.mariadb.org/mariadb-11.4.8/source/mariadb-11.4.8.tar.gz"
-  sha256 "52fa4dca2c5f80afc1667d523a27c06176d98532298a6b0c31ed73505f49e15c"
+  url "https://archive.mariadb.org/mariadb-11.4.5/source/mariadb-11.4.5.tar.gz"
+  sha256 "ff6595f8c482f9921e39b97fa1122377a69f0dcbd92553c6b9032cbf0e9b5354"
   license "GPL-2.0-only"
-  revision 1
+  revision 11
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sequoia: "f817cb86065dc4ac58c85e9c59cb999550eabf3d6d3d8c11fb7014ba2a2ab90e"
+    sha256 sonoma: "f817cb86065dc4ac58c85e9c59cb999550eabf3d6d3d8c11fb7014ba2a2ab90e"
   end
 
   depends_on "bison" => :build
@@ -31,8 +31,6 @@ class VshMariadb114 < Formula
   uses_from_macos "ncurses"
   uses_from_macos "zlib"
 
-  depends_on "openjdk" => :build
-
   def datadir
     var/"#{name}"
   end
@@ -48,17 +46,14 @@ class VshMariadb114 < Formula
   end
 
   def install
-    ENV.runtime_cpu_detection
-
     # Set basedir and ldata so that mysql_install_db can find the server
     # without needing an explicit path to be set. This can still
     # be overridden by calling --basedir= when calling.
     inreplace "scripts/mysql_install_db.sh" do |s|
-      s.change_make_var! "basedir", "\"#{prefix}\""
-      s.change_make_var! "ldata", "\"#{var}/mysql\""
+      s.change_make_var! "basedir", "\"#{opt_libexec}\""
+      s.change_make_var! "ldata", "\"#{datadir}\""
     end
 
-    # Use brew groonga
     rm_r "storage/mroonga/vendor/groonga"
     rm_r "extra/wolfssl"
     rm_r "zlib"
