@@ -5,15 +5,15 @@ class VshPhp73 < Formula
   version "7.3.33"
   sha256 "4924cb54e5ecd0c84a6fe723f5eb05141cad9cd210abee42a1dab564867c9cc8"
   license "PHP-3.01"
-  revision 561
+  revision 562
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d9b8fec9e12a76598c4a1e0bc24fcb9e6e0761596130016f7cd06feaf3ef6b94"
+    sha256 sonoma: "56be5e7cadfeb7abe6774076cc4b0eda5effe7f1571050adf403c1f4637692f7"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconfig" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -27,7 +27,7 @@ class VshPhp73 < Formula
   depends_on "glib"
   depends_on "gd"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -58,8 +58,8 @@ class VshPhp73 < Formula
   patch :DATA
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.0.4.tar.gz"
-    sha256 "7e4f28fc65c8b535de43b6d2ec57429476a6de1d53c4d440a9108ae8d28e01f4"
+    url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
+    sha256 "217e05fbe43940fcbfe18e8f15e3e8ded7dd35926b0bee916782d0fffe8dcc53"
   end
 
   resource "xdebug2_module" do
@@ -68,8 +68,8 @@ class VshPhp73 < Formula
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/3.4.4.tar.gz"
-    sha256 "8204d228ecbe5f744d625c90364808616127471581227415bca18857af981369"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
@@ -148,7 +148,7 @@ class VshPhp73 < Formula
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["icu4c@75"].opt_prefix}
+      --with-icu-dir=#{Formula["icu4c@77"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
@@ -162,6 +162,7 @@ class VshPhp73 < Formula
       --with-mysqli=mysqlnd
       --with-ndbm#{headers_path}
       --with-openssl=#{Formula["openssl@3"].opt_prefix}
+      --with-pcre-regex=#{Formula["pcre2"].opt_prefix}
       --with-password-argon2=#{Formula["argon2"].opt_prefix}
       --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
@@ -205,8 +206,11 @@ class VshPhp73 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"
@@ -224,6 +228,11 @@ class VshPhp73 < Formula
     inreplace "sapi/fpm/www.conf" do |s|
       s.gsub!(/listen =.*/, "listen = /tmp/#{name}.sock")
     end
+
+    # php 7.3 known bug
+    # SO discussion: https://stackoverflow.com/a/53709484/791609
+    # bug report: https://bugs.php.net/bug.php?id=77260
+    inreplace "php.ini-development", ";pcre.jit=1", "pcre.jit=0"
 
     config_files = {
       "php.ini-development"   => "php.ini",
