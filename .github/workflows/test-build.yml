@@ -16,15 +16,18 @@ jobs:
         with:
           python-version: '3.*'
 
-      - name: Set up Homebrew
-        id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@main
+      #- name: Set up Homebrew
+      #  id: set-up-homebrew
+      #  uses: Homebrew/actions/setup-homebrew@main
 
       - uses: actions/checkout@v1
 
       - name: Install dependencies
         working-directory: .github/ansible
         run: |
+          #rm -rf /usr/local/var/homebrew/locks/* || true          
+          brew cleanup
+          brew update-reset
           brew update || true
           brew upgrade $(brew outdated --formula -q) || true          
           python -m pip install --upgrade pip

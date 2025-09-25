@@ -1,5 +1,8 @@
 ---
 
+- name: "run 'brew uninstall --force {{ item }}'"
+  shell: "brew uninstall --force {{ item }}"
+
 - name: "run 'brew install --build-bottle --formula {{ formula_path }}/{{ item }}'"
   shell: "brew install --build-bottle --formula {{ formula_path }}/{{ item }}"
 
