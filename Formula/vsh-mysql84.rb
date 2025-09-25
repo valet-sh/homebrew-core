@@ -1,10 +1,10 @@
 class VshMysql84 < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.4/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.6.tar.gz"
-  sha256 "a1e523dc8be96d18a5ade106998661285ca01b6f5b46c08b2654110e40df2fb7"
+  url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.4.tar.gz"
+  sha256 "fb290ef748894434085249c31bca52ac71853124446ab218bb3bc502bf0082a5"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 1
+  revision 16
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -26,19 +26,10 @@ class VshMysql84 < Formula
   uses_from_macos "cyrus-sasl"
   uses_from_macos "libedit"
 
-  on_macos do
-    depends_on "llvm" if DevelopmentTools.clang_build_version <= 1400
-  end
+  depends_on "llvm" if DevelopmentTools.clang_build_version <= 1400
 
-  fails_with :clang do
-    build 1400
-    cause "Requires C++20"
-  end
-
-  fails_with :gcc do
-    version "9"
-    cause "Requires C++20"
-  end
+  conflicts_with "mysql", "mariadb", "percona-server",
+    because: "mysql, mariadb, and percona install the same binaries"
 
   # Patch out check for Homebrew `boost`.
   # This should not be necessary when building inside `brew`.
