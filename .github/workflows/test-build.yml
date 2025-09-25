@@ -12,10 +12,13 @@ jobs:
     if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'test') }}"
     runs-on: macos-14-selfhosted
     steps:
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.*'
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@main
 
       - uses: actions/checkout@v1
 
