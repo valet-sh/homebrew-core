@@ -139,6 +139,7 @@ class VshPhp73 < Formula
       --enable-sysvshm
       --enable-wddx
       --enable-zip
+      --disable-phar
       --with-bz2#{headers_path}
       --with-curl=#{Formula["curl"].opt_prefix}
       --with-fpm-user=_www
