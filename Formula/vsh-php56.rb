@@ -256,15 +256,15 @@ class VshPhp56 < Formula
     end
 
     #mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
-    mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
-    mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
+    #mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
+    #mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
 
-    mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
-    rm_f "#{bin}/phar"
-    ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
+    #mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
+    #rm_f "#{bin}/phar"
+    #ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
 
-    mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
-    mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
+    #mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
+    #mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
 
   end
 
