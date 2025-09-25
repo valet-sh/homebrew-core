@@ -2,6 +2,7 @@
 
 - name: "run 'brew uninstall --force {{ item }}'"
   shell: "brew uninstall --force {{ item }}"
+  ignore_errors: true
 
 - name: "run 'brew install --build-bottle --formula {{ formula_path }}/{{ item }}'"
   shell: "brew install --build-bottle --formula {{ formula_path }}/{{ item }}"
