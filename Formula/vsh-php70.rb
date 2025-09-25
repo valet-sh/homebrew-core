@@ -5,11 +5,11 @@ class VshPhp70 < Formula
   version "7.0.33"
   sha256 "2d80d4186c14aa7e75cca38105359eda808a512a57824462e84e96d5b1be6b5c"
   license "PHP-3.01"
-  revision 564
+  revision 565
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "0b4a04874610d6113d488e9329c00bc4879753b3126cc7a1ada4bff39ff977bc"
+    sha256 sonoma: "69011b257ad5344aec52870728793c3d1974617a4a5c420db68b9a9bab1d3089"
   end
 
   depends_on "bison" => :build
@@ -57,13 +57,13 @@ class VshPhp70 < Formula
   patch :DATA
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/2.7.2.tar.gz"
-    sha256 "b2aeb55335c5649034fe936abb90f61df175c4f0a0f0b97a219b3559541edfbd"
+    url "https://github.com/xdebug/xdebug/archive/2.9.0.tar.gz"
+    sha256 "d388ad2564a94c52b19eab26983c3686fae8670e13001b51d2cc3b8a1ac4b733"
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/3.4.4.tar.gz"
-    sha256 "8204d228ecbe5f744d625c90364808616127471581227415bca18857af981369"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
@@ -205,8 +205,11 @@ class VshPhp70 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"

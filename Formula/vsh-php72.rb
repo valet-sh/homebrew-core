@@ -1,19 +1,19 @@
 class VshPhp72 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/aee204b665de64862d7832726ffba80faf253746.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/269a597ce7d22198bca3745157a45783d86da7ac.tar.gz"
   version "7.2.34"
-  sha256 "12bb8a43bf63952c05b2c4186f4534cccdb78a4f62f769789c776fdd6f506ef6"
+  sha256 "01e8a6bf83a7b5e77ec6b02d5933e12a39911a4f34bfa572d99ac0020c9513b0"
   license "PHP-3.01"
-  revision 558
+  revision 559
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "71e7c5a06e473bcc09cb0461ed30f977d64c8dffb1c38e8d752b356253f5d929"
+    sha256 sonoma: "2aaf218ed00319d4720dc41acfaa2b87113ce2c4808cc04c35257a277a7372be"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -27,7 +27,7 @@ class VshPhp72 < Formula
   depends_on "gd"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libpng"
@@ -62,8 +62,8 @@ class VshPhp72 < Formula
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/3.4.4.tar.gz"
-    sha256 "8204d228ecbe5f744d625c90364808616127471581227415bca18857af981369"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
@@ -148,7 +148,7 @@ class VshPhp72 < Formula
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["icu4c@75"].opt_prefix}
+      --with-icu-dir=#{Formula["icu4c@77"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
@@ -196,8 +196,11 @@ class VshPhp72 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"
@@ -323,10 +326,10 @@ class VshPhp72 < Formula
     File.basename(extension_dir)
   end
 
-  service do 
+  service do
     php_version = @formula.version.to_s.split(".")[0..1].join(".")
     bin_suffix = php_version
-  
+
     run ["#{opt_sbin}/php-fpm#{bin_suffix}", "--nodaemonize"]
     keep_alive true
     working_dir var
