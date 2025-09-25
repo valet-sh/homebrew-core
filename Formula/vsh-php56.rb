@@ -5,11 +5,11 @@ class VshPhp56 < Formula
   version "5.6.40"
   sha256 "b3397170680a3fe9f1ba36298794af232f76c1eb6d647cd0fe5581a5f233ffc3"
   license "PHP-3.01"
-  revision 574
+  revision 575
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "e95fe4269325ce6620e59a054d6a5ca9259dc4e87fe55bb9b9b8a3e3914b1730"
+    sha256 sonoma: "01af21cb2111a4feb8016c30249f3d8d87ab10ceb953a6b227370e3e340a2a1a"
   end
 
   depends_on "bison" => :build
@@ -56,8 +56,8 @@ class VshPhp56 < Formula
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/3.4.4.tar.gz"
-    sha256 "8204d228ecbe5f744d625c90364808616127471581227415bca18857af981369"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   resource "geoip_module" do
@@ -206,16 +206,22 @@ class VshPhp56 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"
     }
 
     resource("geoip_module").stage {
+      args = %W[
+        --with-geoip=#{Formula["vsh-geoip"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"
@@ -249,16 +255,16 @@ class VshPhp56 < Formula
       touch var/"log/php-fpm#{bin_suffix}.log"
     end
 
-    mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
-    mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
-    mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
+    #mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
+    #mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
+    #mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
 
-    mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
-    rm_f "#{bin}/phar"
-    ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
+    #mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
+    #rm_f "#{bin}/phar"
+    #ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
 
-    mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
-    mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
+    #mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
+    #mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
 
   end
 

@@ -1,7 +1,11 @@
 ---
 
-- name: "run 'arch --x86_64 /usr/local/bin/brew install --build-bottle --formula {{ formula_path }}/{{ item }}'"
-  shell: "arch --x86_64 /usr/local/bin/brew install --build-bottle --formula {{ formula_path }}/{{ item }}"
+- name: "run 'brew uninstall --force {{ item }}'"
+  shell: "brew uninstall --force {{ item }}"
+  ignore_errors: true
 
-- name: "run 'arch --x86_64 /usr/local/bin/brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild'"
-  shell: "arch --x86_64 /usr/local/bin/brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild"
+- name: "run 'brew install --build-bottle --formula {{ formula_path }}/{{ item }}'"
+  shell: "brew install --build-bottle --formula {{ formula_path }}/{{ item }}"
+
+- name: "run 'brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild'"
+  shell: "brew bottle {{ formula_path }}/{{ item }} --json --force-core-tap --no-rebuild"

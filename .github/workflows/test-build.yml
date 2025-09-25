@@ -1,0 +1,38 @@
+name: test-build
+
+on:
+  pull_request:
+    types: [labeled]
+    paths:
+      - 'Formula/**.rb'
+
+jobs:
+
+  test-build-bottles:
+    if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'test') }}"
+    runs-on: macos-14-selfhosted
+    steps:
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.*'
+
+      #- name: Set up Homebrew
+      #  id: set-up-homebrew
+      #  uses: Homebrew/actions/setup-homebrew@main
+
+      - uses: actions/checkout@v1
+
+      - name: Install dependencies
+        working-directory: .github/ansible
+        run: |
+          #rm -rf /usr/local/var/homebrew/locks/* || true          
+          brew cleanup
+          brew update-reset
+          brew update || true
+          brew upgrade $(brew outdated --formula -q) || true          
+          python -m pip install --upgrade pip
+          pip install -Iq -r requirements.txt
+
+      - name: Build bottles
+        working-directory: .github/ansible
+        run: ansible-playbook -vvv playbooks/build-bottles.yml
