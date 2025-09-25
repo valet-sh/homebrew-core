@@ -1,22 +1,28 @@
 class VshMariadb106 < Formula
   desc "Drop-in replacement for MySQL"
   homepage "https://mariadb.org/"
-  url "https://archive.mariadb.org/mariadb-10.6.18/source/mariadb-10.6.18.tar.gz"
-  sha256 "6898a1111f47130709e28ba2c7bd1a57e4bb57101f6e109e597d51e6d385cf18"
+  url "https://archive.mariadb.org/mariadb-10.6.23/source/mariadb-10.6.23.tar.gz"
+  sha256 "baf4bf37a051e892e71724ee752891adb7cfc69cd28d08735c3607d30c693c23"
   license "GPL-2.0-only"
-  revision 48
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3af510444e5ed5009de662d570af842f8576d148d5f62ce58dc40abaea51601a"
+    sha256 sonoma: "d7d44b8b6dee0437e14b51bd3fbba7631c1f4554a97333c78bf257930fed12d9"
   end
 
   depends_on "bison" => :build
   depends_on "cmake" => :build
-  depends_on "pkg-config" => :build
+  depends_on "openjdk" => :build
+  depends_on "pkgconf" => :build
+
   depends_on "groonga"
+  depends_on "lz4"
+  depends_on "lzo"
   depends_on "openssl@3"
   depends_on "pcre2"
+  depends_on "xz"
+  depends_on "zstd"
 
   uses_from_macos "bzip2"
   uses_from_macos "krb5"
@@ -26,7 +32,6 @@ class VshMariadb106 < Formula
   uses_from_macos "ncurses"
   uses_from_macos "xz"
   uses_from_macos "zlib"
-  fails_with gcc: "5"
 
   def datadir
     var/"#{name}"
@@ -36,15 +41,22 @@ class VshMariadb106 < Formula
     libexec/"config"
   end
 
-  patch :DATA
-
   def install
+    ENV.runtime_cpu_detection
+
+    # Backport fix for CMake 4.0 in columnstore submodule
+    # https://github.com/mariadb-corporation/mariadb-columnstore-engine/commit/726cc3684b4de08934c2b14f347799fd8c3aac9a
+    # https://github.com/mariadb-corporation/mariadb-columnstore-engine/commit/7e17d8825409fb8cc0629bfd052ffac6e542b50e
+    inreplace "storage/columnstore/columnstore/CMakeLists.txt",
+              "CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)",
+              "CMAKE_MINIMUM_REQUIRED(VERSION 3.10)"
+
     # Set basedir and ldata so that mysql_install_db can find the server
     # without needing an explicit path to be set. This can still
     # be overridden by calling --basedir= when calling.
     inreplace "scripts/mysql_install_db.sh" do |s|
-      s.change_make_var! "basedir", "\"#{opt_libexec}\""
-      s.change_make_var! "ldata", "\"#{datadir}\""
+      s.change_make_var! "basedir", "\"#{prefix}\""
+      s.change_make_var! "ldata", "\"#{var}/mysql\""
     end
 
     # Use brew groonga
@@ -66,13 +78,11 @@ class VshMariadb106 < Formula
       -DINSTALL_SYSCONFDIR=#{etc}/#{name}
       -DCOMPILATION_COMMENT=valet.sh
       -DPLUGIN_ROCKSDB=NO
-      -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     ]
 
-    system "cmake", ".", *std_cmake_args, *args
-
-    system "make"
-    system "make", "install"
+    system "cmake", "-S", ".", "-B", "_build", *std_cmake_args, *args
+    system "cmake", "--build", "_build"
+    system "cmake", "--install", "_build"
 
     # Save space
     #rm_r libexec/"mariadb-test"
@@ -215,45 +225,3 @@ class VshMariadb106 < Formula
     Process.wait(pid)
   end
 end
-
-__END__
-diff --git a/sql/mysqld.cc b/sql/mysqld.cc
-index cfc16209251c2..a9960400c17cd 100644
---- a/sql/mysqld.cc
-+++ b/sql/mysqld.cc
-@@ -2953,6 +2953,15 @@ static void start_signal_handler(void)
-   DBUG_VOID_RETURN;
- }
-
-+/** Called only from signal_hand function. */
-+static void* exit_signal_handler()
-+{
-+    my_thread_end();
-+    signal_thread_in_use= 0;
-+    pthread_exit(0);  // Safety
-+    return nullptr;  // Avoid compiler warnings
-+}
-+
-
- /** This threads handles all signals and alarms. */
- /* ARGSUSED */
-@@ -3013,10 +3022,7 @@ pthread_handler_t signal_hand(void *arg __attribute__((unused)))
-     if (abort_loop)
-     {
-       DBUG_PRINT("quit",("signal_handler: calling my_thread_end()"));
--      my_thread_end();
--      signal_thread_in_use= 0;
--      pthread_exit(0);				// Safety
--      return 0;                                 // Avoid compiler warnings
-+      return exit_signal_handler();
-     }
-     switch (sig) {
-     case SIGTERM:
-@@ -3035,6 +3041,7 @@ pthread_handler_t signal_hand(void *arg __attribute__((unused)))
-         PSI_CALL_delete_current_thread();
-         my_sigset(sig, SIG_IGN);
-         break_connect_loop(); // MIT THREAD has a alarm thread
-+        return exit_signal_handler();
-       }
-       break;
-     case SIGHUP:
