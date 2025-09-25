@@ -36,6 +36,7 @@
   when:
     - github_release_asset_id is defined
     - github_release_asset_id is not none
+    - github_release_asset_id | length > 0
 
 - name: debug var
   debug:

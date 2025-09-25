@@ -2,13 +2,14 @@ class VshMysql80 < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
   url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.43.tar.gz"
+  mirror "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/mysql-8.0/8.0.43-0ubuntu0.24.04.2/mysql-8.0_8.0.43.orig.tar.gz"
   sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 38
+  revision 39
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "b244bf0377a2b80606dd24b9871a315d42dd8c239777ca5d689a6e149885e3fb"
+    sha256 sonoma: "bfdaf5c99889abf6cec68da1546287dbb797c1c6c4c8d22d9bc6d12d2e2dc8d8"
   end
 
   depends_on "bison" => :build
@@ -27,8 +28,6 @@ class VshMysql80 < Formula
   uses_from_macos "curl"
   uses_from_macos "cyrus-sasl"
   uses_from_macos "libedit"
-
-
 
   conflicts_with "mysql", "mariadb", "percona-server",
     because: "mysql, mariadb, and percona install the same binaries"
