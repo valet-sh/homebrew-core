@@ -12,7 +12,7 @@ class VshGeoip < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "9a0ea838258296227ed1c742048360a2bf0199afed19922a8358623a6b592786"
+    sha256 sonoma: "9a0ea838258296227ed1c742048360a2bf0199afed19922a8358623a6b592786"
   end
 
   resource "database" do
