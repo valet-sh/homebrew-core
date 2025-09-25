@@ -1,19 +1,34 @@
 class VshPhp73 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/e1ccf67c96d54e0f1db4ac5fc6b8c2134e48f199.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/580fe100065f1cd83ac2ad5a6254a1f95dde93ee.tar.gz"
   version "7.3.33"
-  sha256 "4924cb54e5ecd0c84a6fe723f5eb05141cad9cd210abee42a1dab564867c9cc8"
+  sha256 "c3bb3db324daed97e2c50f2755462df5b0cb4b912ab5b38c96dc6cfaca92475e"
   license "PHP-3.01"
-  revision 562
+  revision 12
 
   bottle do
-    root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "56be5e7cadfeb7abe6774076cc4b0eda5effe7f1571050adf403c1f4637692f7"
+    root_url "https://ghcr.io/v2/shivammathur/php"
+    rebuild 1
+    sha256 arm64_sequoia: "6318d6d6db9622e8e92cda7557b1daf269932b2ac269e5debae83cc36c80cbf9"
+    sha256 arm64_sonoma:  "61067d5d8d4d71d23a999c78190a2bac3200a215aab25f6c0b7feb48db8c3ab8"
+    sha256 arm64_ventura: "f5a6ef3ac7138768981224b21142b0c50efc494094a23dfcdf25921a7574f39e"
+    sha256 ventura:       "44440c98ba21b433fe438dd458c89ed2635780f429cccd1194c2c2ef4d3fcc66"
+    sha256 arm64_linux:   "0dd8dfd904e139d74d0f91895559423ae1f02d4cbb598639e83618ee60eacbad"
+    sha256 x86_64_linux:  "7d4058e5e6d7112936f12065783d41a6c383a064e770dff7f91826a504fbb53b"
   end
 
+  keg_only :versioned_formula
+
+  # This PHP version is not supported upstream as of 2021-12-06.
+  # Although, this was built with back-ported security patches,
+  # we recommended to use a currently supported PHP version.
+  # For more details, refer to https://www.php.net/eol.php
+  deprecate! date: "2021-12-06", because: :deprecated_upstream
+
   depends_on "bison" => :build
-  depends_on "pkgconfig" => :build
+  depends_on "httpd" => [:build, :test]
+  depends_on "pkgconf" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -23,28 +38,25 @@ class VshPhp73 < Formula
   depends_on "curl"
   depends_on "freetds"
   depends_on "freetype"
-  depends_on "gettext"
-  depends_on "glib"
   depends_on "gd"
+  depends_on "gettext"
   depends_on "gmp"
   depends_on "icu4c@77"
-  depends_on "krb5"
   depends_on "jpeg"
+  depends_on "krb5"
   depends_on "libpng"
   depends_on "libpq"
-  depends_on "libyaml"
-  depends_on "pcre2"
   depends_on "libsodium"
   depends_on "libx11"
   depends_on "libxpm"
   depends_on "libzip"
   depends_on "openldap"
   depends_on "openssl@3"
+  depends_on "pcre2"
   depends_on "sqlite"
   depends_on "tidy-html5"
   depends_on "unixodbc"
   depends_on "webp"
-  depends_on "imagemagick"
 
   uses_from_macos "xz" => :build
   uses_from_macos "bzip2"
@@ -53,23 +65,9 @@ class VshPhp73 < Formula
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  # PHP build system incorrectly links system libraries
-  # see https://github.com/php/php-src/pull/3472
-  patch :DATA
-
-  resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
-    sha256 "217e05fbe43940fcbfe18e8f15e3e8ded7dd35926b0bee916782d0fffe8dcc53"
-  end
-
-  resource "xdebug2_module" do
-    url "https://github.com/xdebug/xdebug/archive/2.9.8.tar.gz"
-    sha256 "28f8de8e6491f51ac9f551a221275360458a01c7690c42b23b9a0d2e6429eff4"
-  end
-
-  resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
-    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
+  on_macos do
+    # PHP build system incorrectly links system libraries
+    patch :DATA
   end
 
   def install
@@ -90,35 +88,57 @@ class VshPhp73 < Formula
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
 
+    inreplace "configure" do |s|
+      s.gsub! "APACHE_THREADED_MPM=`$APXS_HTTPD -V | grep 'threaded:.*yes'`",
+              "APACHE_THREADED_MPM="
+      s.gsub! "APXS_LIBEXECDIR='$(INSTALL_ROOT)'`$APXS -q LIBEXECDIR`",
+              "APXS_LIBEXECDIR='$(INSTALL_ROOT)#{lib}/httpd/modules'"
+      s.gsub! "-z `$APXS -q SYSCONFDIR`",
+              "-z ''"
+
+      # apxs will interpolate the @ in the versioned prefix: https://bz.apache.org/bugzilla/show_bug.cgi?id=61944
+      s.gsub! "LIBEXECDIR='$APXS_LIBEXECDIR'",
+      "LIBEXECDIR='" + "#{lib}/httpd/modules".gsub("@", "\\@") + "'"
+    end
+
+    # Update error message in apache sapi to better explain the requirements
+    # of using Apache http in combination with php if the non-compatible MPM
+    # has been selected. Homebrew has chosen not to support being able to
+    # compile a thread safe version of PHP and therefore it is not
+    # possible to recompile as suggested in the original message
+    inreplace "sapi/apache2handler/sapi_apache2.c",
+              "You need to recompile PHP.",
+              "Homebrew PHP does not support a thread-safe php binary. " \
+              "To use the PHP apache sapi please change " \
+              "your httpd config to use the prefork MPM"
+
     inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
 
-    config_path = etc/"#{name}"
+    config_path = etc/"php/#{version.major_minor}"
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
 
+    # Prevent homebrew from hardcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
-    headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
+    headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
 
-    ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20180731"
-    ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
 
     args = %W[
       --prefix=#{prefix}
       --localstatedir=#{var}
       --sysconfdir=#{config_path}
-      --libdir=#{prefix}/lib/#{name}
-      --includedir=#{prefix}/include/#{name}
-      --datadir=#{prefix}/share/#{name}
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
-      --program-suffix=#{bin_suffix}
+      --with-pear=#{pkgshare}/pear
       --enable-bcmath
       --enable-calendar
       --enable-dba
-      --enable-dtrace
       --enable-exif
       --enable-ftp
       --enable-fpm
@@ -129,6 +149,7 @@ class VshPhp73 < Formula
       --enable-opcache-file
       --enable-pcntl
       --enable-phpdbg
+      --enable-phpdbg-readline
       --enable-phpdbg-webhelper
       --enable-shmop
       --enable-soap
@@ -138,11 +159,10 @@ class VshPhp73 < Formula
       --enable-sysvshm
       --enable-wddx
       --enable-zip
-      --disable-phar
-      --with-bz2#{headers_path}
+      --with-apxs2=#{Formula["httpd"].opt_bin}/apxs
       --with-curl=#{Formula["curl"].opt_prefix}
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
       --with-gd=#{Formula["gd"].opt_prefix}
       --with-gettext=#{Formula["gettext"].opt_prefix}
@@ -153,17 +173,13 @@ class VshPhp73 < Formula
       --with-kerberos#{headers_path}
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
-      --with-ldap-sasl#{headers_path}
-      --with-libxml-dir#{headers_path}
-      --with-libedit#{headers_path}
       --with-libzip
       --with-mhash#{headers_path}
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
-      --with-ndbm#{headers_path}
       --with-openssl=#{Formula["openssl@3"].opt_prefix}
-      --with-pcre-regex=#{Formula["pcre2"].opt_prefix}
       --with-password-argon2=#{Formula["argon2"].opt_prefix}
+      --with-pcre-regex=#{Formula["pcre2"].opt_prefix}
       --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
       --with-pdo-odbc=unixODBC,#{Formula["unixodbc"].opt_prefix}
@@ -178,43 +194,43 @@ class VshPhp73 < Formula
       --with-tidy=#{Formula["tidy-html5"].opt_prefix}
       --with-unixODBC=#{Formula["unixodbc"].opt_prefix}
       --with-webp-dir=#{Formula["webp"].opt_prefix}
-      --with-xpm-dir=#{Formula["libxpm"].opt_prefix}
       --with-xmlrpc
-      --with-xsl#{headers_path}
-      --with-zlib#{headers_path}
+      --with-xpm-dir=#{Formula["libxpm"].opt_prefix}
     ]
+
+    if OS.mac?
+      args << "--enable-dtrace"
+      args << "--with-ldap-sasl#{headers_path}"
+      args << "--with-zlib#{headers_path}"
+      args << "--with-bz2#{headers_path}"
+      args << "--with-ndbm#{headers_path}"
+      args << "--with-libedit#{headers_path}"
+      args << "--with-libxml-dir#{headers_path}"
+      args << "--with-xsl#{headers_path}"
+    else
+      args << "--disable-dtrace"
+      args << "--with-zlib=#{Formula["zlib"].opt_prefix}"
+      args << "--with-bz2=#{Formula["bzip2"].opt_prefix}"
+      args << "--with-libedit=#{Formula["libedit"].opt_prefix}"
+      args << "--with-libxml-dir=#{Formula["libxml2"].opt_prefix}"
+      args << "--with-xsl=#{Formula["libxslt"].opt_prefix}"
+      args << "--without-ldap-sasl"
+      args << "--without-ndbm"
+      args << "--without-gdbm"
+    end
 
     system "./configure", *args
     system "make"
     system "make", "install"
 
-    resource("xdebug2_module").stage {
-      system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
-      system "make", "clean"
-      system "make", "all"
-
-      mv "modules/xdebug.so", "#{php_ext_path}/xdebug2.so"
-    }
-
-    resource("xdebug_module").stage {
-      system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
-      system "make", "clean"
-      system "make", "all"
-      system "make", "install"
-    }
-
-    resource("imagick_module").stage {
-      args = %W[
-        --with-imagick=#{Formula["imagemagick"].opt_prefix}
-      ]
-      system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
-      system "make", "clean"
-      system "make", "all"
-      system "make", "install"
-    }
+    # Allow pecl to install outside of Cellar
+    extension_dir = Utils.safe_popen_read("#{bin}/php-config", "--extension-dir").chomp
+    orig_ext_dir = File.basename(extension_dir)
+    inreplace bin/"php-config", lib/"php", prefix/"pecl"
+    %w[development production].each do |mode|
+      inreplace "php.ini-#{mode}", %r{; ?extension_dir = "\./"},
+        "extension_dir = \"#{HOMEBREW_PREFIX}/lib/php/pecl/#{orig_ext_dir}\""
+    end
 
     # Use OpenSSL cert bundle
     openssl = Formula["openssl@3"]
@@ -225,10 +241,6 @@ class VshPhp73 < Formula
         "openssl.capath = \"#{openssl.pkgetc}/certs\""
     end
 
-    inreplace "sapi/fpm/www.conf" do |s|
-      s.gsub!(/listen =.*/, "listen = /tmp/#{name}.sock")
-    end
-
     # php 7.3 known bug
     # SO discussion: https://stackoverflow.com/a/53709484/791609
     # bug report: https://bugs.php.net/bug.php?id=77260
@@ -236,6 +248,7 @@ class VshPhp73 < Formula
 
     config_files = {
       "php.ini-development"   => "php.ini",
+      "php.ini-production"    => "php.ini-production",
       "sapi/fpm/php-fpm.conf" => "php-fpm.conf",
       "sapi/fpm/www.conf"     => "php-fpm.d/www.conf",
     }
@@ -245,46 +258,14 @@ class VshPhp73 < Formula
     end
     config_path.install config_files
 
-    unless (var/"log/php-fpm#{bin_suffix}.log").exist?
+    unless (var/"log/php-fpm.log").exist?
       (var/"log").mkpath
-      touch var/"log/php-fpm#{bin_suffix}.log"
+      touch var/"log/php-fpm.log"
     end
-
-    mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
-    mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
-    mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
-
-    mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
-    rm_f "#{bin}/phar"
-    ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
-
-    mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
-    mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
-
   end
 
   def post_install
-
-    # check if php extension dir (e.g. 20180731) exists and is not a symlink
-    # only relevant when running "brew postinstall" manually
-    if (lib/"#{name}/#{php_ext_dir}").exist? && !(lib/"#{name}/#{php_ext_dir}").symlink?
-        unless (var/"#{name}/#{php_ext_dir}").exist?
-            (var/"#{name}/#{php_ext_dir}").mkpath
-        end
-
-        Dir.glob(lib/"#{name}/#{php_ext_dir}/*") do |php_module|
-            php_module_name = File.basename(php_module)
-            mv "#{php_module}", var/"#{name}/#{php_ext_dir}/#{php_module_name}"
-        end
-
-        rm_r lib/"#{name}/#{php_ext_dir}"
-        ln_s var/"#{name}/#{php_ext_dir}", lib/"#{name}/#{php_ext_dir}"
-    end
-
     pear_prefix = pkgshare/"pear"
-
-    puts "#{pear_prefix}"
-
     pear_files = %W[
       #{pear_prefix}/.depdblock
       #{pear_prefix}/.filemap
@@ -302,81 +283,95 @@ class VshPhp73 < Formula
 
     chmod 0644, pear_files
 
+    # Custom location for extensions installed via pecl
+    pecl_path = HOMEBREW_PREFIX/"lib/php/pecl"
+    pecl_path.mkpath
+    ln_s pecl_path, prefix/"pecl" unless (prefix/"pecl").exist?
+    extension_dir = Utils.safe_popen_read("#{bin}/php-config", "--extension-dir").chomp
+    php_basename = File.basename(extension_dir)
+    php_ext_dir = opt_prefix/"lib/php"/php_basename
+
+    # fix pear config to install outside cellar
+    pear_path = HOMEBREW_PREFIX/"share/pear@#{version.major_minor}"
+    cp_r pkgshare/"pear/.", pear_path
     {
-      "php_ini"  => etc/"#{name}/php.ini"
+      "php_ini"  => etc/"php/#{version.major_minor}/php.ini",
+      "php_dir"  => pear_path,
+      "doc_dir"  => pear_path/"doc",
+      "ext_dir"  => pecl_path/php_basename,
+      "bin_dir"  => opt_bin,
+      "data_dir" => pear_path/"data",
+      "cfg_dir"  => pear_path/"cfg",
+      "www_dir"  => pear_path/"htdocs",
+      "man_dir"  => HOMEBREW_PREFIX/"share/man",
+      "test_dir" => pear_path/"test",
+      "php_bin"  => opt_bin/"php",
     }.each do |key, value|
       value.mkpath if /(?<!bin|man)_dir$/.match?(key)
-      system bin/"pear#{bin_suffix}", "config-set", key, value, "system"
+      system bin/"pear", "config-set", key, value, "system"
     end
 
-    system bin/"pear#{bin_suffix}", "update-channels"
+    system bin/"pear", "update-channels"
 
     %w[
       opcache
     ].each do |e|
-      ext_config_path = etc/"#{name}/conf.d/ext-#{e}.ini"
+      ext_config_path = etc/"php/#{version.major_minor}/conf.d/ext-#{e}.ini"
       extension_type = (e == "opcache") ? "zend_extension" : "extension"
       if ext_config_path.exist?
         inreplace ext_config_path,
-          /#{extension_type}=.*$/, "#{extension_type}=#{e}.so"
+          /#{extension_type}=.*$/, "#{extension_type}=#{php_ext_dir}/#{e}.so"
       else
         ext_config_path.write <<~EOS
           [#{e}]
-          #{extension_type}="#{e}.so"
+          #{extension_type}="#{php_ext_dir}/#{e}.so"
         EOS
       end
     end
   end
 
-  def php_version
-    version.to_s.split(".")[0..1].join(".")
+  def caveats
+    <<~EOS
+      To enable PHP in Apache add the following to httpd.conf and restart Apache:
+          LoadModule php7_module #{opt_lib}/httpd/modules/libphp7.so
+
+          <FilesMatch \\.php$>
+              SetHandler application/x-httpd-php
+          </FilesMatch>
+
+      Finally, check DirectoryIndex includes index.php
+          DirectoryIndex index.php index.html
+
+      The php.ini and php-fpm.ini file can be found in:
+          #{etc}/php/#{version.major_minor}/
+    EOS
   end
 
-  def bin_suffix
-    "#{php_version}"
-  end
-
-  def php_ext_dir
-    extension_dir = Utils.popen_read("#{bin}/php-config#{bin_suffix} --extension-dir").chomp
-    File.basename(extension_dir)
-  end
-
-  def php_ext_path
-    Utils.popen_read("#{bin}/php-config#{bin_suffix} --extension-dir").chomp
-  end
-
-  service do 
-    php_version = @formula.version.to_s.split(".")[0..1].join(".")
-    bin_suffix = php_version
-  
-    run ["#{opt_sbin}/php-fpm#{bin_suffix}", "--nodaemonize"]
+  service do
+    run [opt_sbin/"php-fpm", "--nodaemonize"]
+    run_type :immediate
     keep_alive true
+    error_log_path var/"log/php-fpm.log"
     working_dir var
-    error_log_path var/"log/vsh-php73.log"
   end
 
   test do
-    assert_match /^Zend OPcache$/, shell_output("#{bin}/php -i"),
-      "Zend OPCache extension not loaded"
+    assert_match(/^Zend OPcache$/, shell_output("#{bin}/php -i"),
+      "Zend OPCache extension not loaded")
     # Test related to libxml2 and
     # https://github.com/Homebrew/homebrew-core/issues/28398
-    assert_includes MachO::Tools.dylibs("#{bin}/php"),
-      "#{Formula["libpq"].opt_lib}/libpq.5.dylib"
-    system "#{sbin}/php-fpm#{bin_suffix}", "-t"
-    system "#{bin}/phpdbg#{bin_suffix}", "-V"
-    system "#{bin}/php-cgi#{bin_suffix}", "-m"
-    # Prevent SNMP extension to be added
-    assert_no_match /^snmp$/, shell_output("#{bin}/php -m"),
-      "SNMP extension doesn't work reliably with Homebrew on High Sierra"
-    begin
-      require "socket"
+    assert_includes (bin/"php").dynamically_linked_libraries,
+                    (Formula["libpq"].opt_lib/shared_library("libpq", 5)).to_s
 
-      server = TCPServer.new(0)
-      port = server.addr[1]
-      server_fpm = TCPServer.new(0)
-      port_fpm = server_fpm.addr[1]
-      server.close
-      server_fpm.close
+    system "#{sbin}/php-fpm", "-t"
+    system "#{bin}/phpdbg", "-V"
+    system "#{bin}/php-cgi", "-m"
+    # Prevent SNMP extension to be added
+    refute_match(/^snmp$/, shell_output("#{bin}/php -m"),
+      "SNMP extension doesn't work reliably with Homebrew on High Sierra")
+    begin
+      port = free_port
+      port_fpm = free_port
 
       expected_output = /^Hello world!$/
       (testpath/"index.php").write <<~EOS
@@ -431,7 +426,7 @@ class VshPhp73 < Formula
       pid = fork do
         exec Formula["httpd"].opt_bin/"httpd", "-X", "-f", "#{testpath}/httpd.conf"
       end
-      sleep 3
+      sleep 5
 
       assert_match expected_output, shell_output("curl -s 127.0.0.1:#{port}")
 
@@ -439,7 +434,7 @@ class VshPhp73 < Formula
       Process.wait(pid)
 
       fpm_pid = fork do
-        exec sbin/"php-fpm#{bin_suffix}", "-y", "fpm.conf"
+        exec sbin/"php-fpm", "-y", "fpm.conf"
       end
       pid = fork do
         exec Formula["httpd"].opt_bin/"httpd", "-X", "-f", "#{testpath}/httpd-fpm.conf"
