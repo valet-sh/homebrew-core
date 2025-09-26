@@ -238,13 +238,13 @@ class VshPhp74 < Formula
       mv "modules/xdebug.so", "#{php_ext_path}/xdebug2.so"
     }
 
-    resource("xdebug_module").stage {
-      system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
-      system "make", "clean"
-      system "make", "all"
-      system "make", "install"
-    }
+    #resource("xdebug_module").stage {
+    #  system "#{bin}/phpize#{bin_suffix}"
+    #  system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+    #  system "make", "clean"
+    #  system "make", "all"
+    #  system "make", "install"
+    #}
 
     resource("imagick_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
