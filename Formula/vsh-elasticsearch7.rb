@@ -1,14 +1,14 @@
 class VshElasticsearch7 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v7.17.25.tar.gz"
-  sha256 "f5527cfffb754f1204b2e0a908a251c6e0946831f260e67f43c4b54f38dc0aac"
+  url "https://github.com/elastic/elasticsearch/archive/v7.17.29.tar.gz"
+  sha256 "545ed87bb6f30279efa147bd693e14645d7d1fb523a5293f1fa52f069cc2e88f"
   revision 1
   license "Apache-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "95883c30f25a9c00bb4ef32beed349bef853ed0c267fb53219195f4e98bad76f"
+    sha256 sonoma: "e58ddf18e079f08bd125808b50a97f2ac7eee9b98d891a832054e9489166e202"
   end
 
   depends_on "gradle@7" => :build
@@ -19,6 +19,8 @@ class VshElasticsearch7 < Formula
   end
 
   def install
+    inreplace "x-pack/plugin/ml/build.gradle", "[revision]-SNAPSHOT", "7.17.30-SNAPSHOT"
+
     ENV["ES_PATH_CONF"] = '#{Formula["openjdk@17"]'
     system "./gradlew", ":distribution:archives:darwin-tar:assemble", "-Dbuild.snapshot=false", "-Dlicense.key=./x-pack/plugin/core/snapshot.key"
 
@@ -55,7 +57,7 @@ class VshElasticsearch7 < Formula
     (libexec/"bin/elasticsearch-plugin-update").write <<~EOS
         #!/bin/bash
 
-        export JAVA_HOME="#{Formula["openjdk@11"].opt_libexec}/openjdk.jdk/Contents/Home"
+        export JAVA_HOME="#{Formula["openjdk@17"].opt_libexec}/openjdk.jdk/Contents/Home"
 
         base_dir=$(dirname $0)
         PLUGIN_BIN=${base_dir}/elasticsearch-plugin
@@ -74,9 +76,9 @@ class VshElasticsearch7 < Formula
 
     inreplace libexec/"bin/elasticsearch-env",
               "CDPATH=\"\"",
-              "JAVA_HOME=\"#{Formula['openjdk@11'].opt_libexec}/openjdk.jdk/Contents/Home\"\nCDPATH=\"\""
+              "JAVA_HOME=\"#{Formula['openjdk@17'].opt_libexec}/openjdk.jdk/Contents/Home\"\nCDPATH=\"\""
 
-    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk@11"].opt_prefix)
+    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk@17"].opt_prefix)
   end
 
   def post_install
