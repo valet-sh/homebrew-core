@@ -62,6 +62,11 @@ class VshPhp82 < Formula
     cause "Performs worse due to lack of general global register variables"
   end
 
+  resource "xdebug_module" do
+    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
+    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
+  end
+
   resource "imagick_module" do
     url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
     sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
