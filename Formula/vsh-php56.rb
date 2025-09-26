@@ -5,11 +5,11 @@ class VshPhp56 < Formula
   version "5.6.40"
   sha256 "b3397170680a3fe9f1ba36298794af232f76c1eb6d647cd0fe5581a5f233ffc3"
   license "PHP-3.01"
-  revision 575
+  revision 577
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "01af21cb2111a4feb8016c30249f3d8d87ab10ceb953a6b227370e3e340a2a1a"
+    sha256 sonoma: "28be53d5d4522b810c8316b591f4fc8c85ca938f1a159291bf2c190c37feec3c"
   end
 
   depends_on "bison" => :build
@@ -255,16 +255,16 @@ class VshPhp56 < Formula
       touch var/"log/php-fpm#{bin_suffix}.log"
     end
 
-    #mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
-    #mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
-    #mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
+    mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
+    mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
+    mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
 
-    #mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
-    #rm_f "#{bin}/phar"
-    #ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
+    mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
+    rm_f "#{bin}/phar"
+    ln_s "#{bin}/phar#{bin_suffix}.phar", "#{bin}/phar#{bin_suffix}"
 
-    #mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
-    #mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
+    mv "#{man1}/phar.1", "#{man1}/phar#{bin_suffix}.1"
+    mv "#{man1}/phar.phar.1", "#{man1}/phar#{bin_suffix}.phar.1"
 
   end
 

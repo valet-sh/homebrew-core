@@ -1,19 +1,19 @@
 class VshPhp74 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/e0f74921d4a5f1cbea083a9fd07aa78f930fd5f5.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/78eed5e70e3c16e2d310ccd95b9e247891033cf5.tar.gz"
   version "7.4.33"
-  sha256 "69d0995fd377caa204372d28420463ed5dffd35cdc6013fa33ee41b8fcc4cfb2"
+  sha256 "2514d5ba7da9f9546a3be16c88f11ab59fa89796a3cf2b6b3f747c596c7c8b21"
   license "PHP-3.01"
-  revision 562
+  revision 563
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "02c31aed40c0a06fbc7d3ba96a57baff35cbe9717e8e0c7c134ffbfd824314af"
+    sha256 sonoma: "5b0308d06b8519cf548d9ef7bba305edfe8eed692dc7859d1024e0be371245f7"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconfig" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -27,7 +27,7 @@ class VshPhp74 < Formula
   depends_on "glib"
   depends_on "gd"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libffi"
@@ -54,13 +54,17 @@ class VshPhp74 < Formula
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  # PHP build system incorrectly links system libraries
-  # see https://github.com/php/php-src/pull/3472
-  patch :DATA
+  on_macos do
+    depends_on "gcc"
+
+    # PHP build system incorrectly links system libraries
+    # see https://github.com/php/php-src/issues/10680
+    patch :DATA
+  end
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.0.4.tar.gz"
-    sha256 "7e4f28fc65c8b535de43b6d2ec57429476a6de1d53c4d440a9108ae8d28e01f4"
+    url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
+    sha256 "217e05fbe43940fcbfe18e8f15e3e8ded7dd35926b0bee916782d0fffe8dcc53"
   end
 
   resource "xdebug2_module" do
@@ -73,11 +77,29 @@ class VshPhp74 < Formula
     sha256 "8204d228ecbe5f744d625c90364808616127471581227415bca18857af981369"
   end
 
+  # https://github.com/Homebrew/homebrew-core/issues/235820
+  # https://clang.llvm.org/docs/UsersManual.html#gcc-extensions-not-implemented-yet
+  fails_with :clang do
+    cause "Performs worse due to lack of general global register variables"
+  end
+
   def install
+    # GCC -Os performs worse than -O1 and significantly worse than -O2/-O3.
+    # We lack a DSL to enable -O2 so just use -O3 which is similar.
+    ENV.O3 if OS.mac?
+
     # Work around for building with Xcode 15.3
     if DevelopmentTools.clang_build_version >= 1500
       ENV.append "CFLAGS", "-Wno-incompatible-function-pointer-types"
       ENV.append "LDFLAGS", "-lresolv"
+    end
+
+    if OS.mac? && ENV.compiler.to_s.start_with?("gcc")
+      ENV.append "CFLAGS", "-Wno-incompatible-pointer-types"
+      ENV.append "CPPFLAGS", "-DL_ctermid=1024"
+      inreplace "ext/gd/gd.c", "func_p)()", "func_p)(...)"
+      inreplace "ext/gd/gd_ctx.c", "func_p)()", "func_p)(...)"
+      inreplace "ext/standard/scanf.c", "zend_long (*fn)()", "zend_long (*fn)(...)"
     end
 
     # Work around to support `icu4c` 75, which needs C++17.
@@ -85,6 +107,8 @@ class VshPhp74 < Formula
 
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
+
+    inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
 
     config_path = etc/"#{name}"
     # Prevent system pear config from inhibiting pear install
@@ -109,6 +133,10 @@ class VshPhp74 < Formula
     # sdk path or it won't find the headers
     headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
 
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
+
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20190902"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
 
@@ -123,11 +151,9 @@ class VshPhp74 < Formula
       --with-config-file-scan-dir=#{config_path}/conf.d
       --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
-      --with-os-sdkpath=#{MacOS.sdk_path_if_needed}
       --enable-bcmath
       --enable-calendar
       --enable-dba
-      --enable-dtrace
       --enable-exif
       --enable-ftp
       --enable-fpm
@@ -148,11 +174,11 @@ class VshPhp74 < Formula
       --enable-sysvshm
       --with-bz2#{headers_path}
       --with-curl
-      --with-ffi
       --with-external-gd
       --with-external-pcre
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-ffi
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-freetype
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
@@ -161,7 +187,6 @@ class VshPhp74 < Formula
       --with-kerberos
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
-      --with-ldap-sasl
       --with-libxml
       --with-libedit
       --with-mhash#{headers_path}
@@ -189,6 +214,17 @@ class VshPhp74 < Formula
       --with-zlib
     ]
 
+    if OS.mac?
+      args << "--enable-dtrace"
+      args << "--with-ldap-sasl"
+      args << "--with-os-sdkpath=#{MacOS.sdk_path_if_needed}"
+    else
+      args << "--disable-dtrace"
+      args << "--without-ldap-sasl"
+      args << "--without-ndbm"
+      args << "--without-gdbm"
+    end
+
     system "./configure", *args
     system "make"
     system "make", "install"
@@ -202,13 +238,13 @@ class VshPhp74 < Formula
       mv "modules/xdebug.so", "#{php_ext_path}/xdebug2.so"
     }
 
-    resource("xdebug_module").stage {
-      system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
-      system "make", "clean"
-      system "make", "all"
-      system "make", "install"
-    }
+    #resource("xdebug_module").stage {
+    #  system "#{bin}/phpize#{bin_suffix}"
+    #  system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+    #  system "make", "clean"
+    #  system "make", "all"
+    #  system "make", "install"
+    #}
 
     resource("imagick_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
