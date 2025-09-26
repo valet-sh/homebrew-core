@@ -5,11 +5,11 @@ class VshPhp72 < Formula
   version "7.2.34"
   sha256 "01e8a6bf83a7b5e77ec6b02d5933e12a39911a4f34bfa572d99ac0020c9513b0"
   license "PHP-3.01"
-  revision 559
+  revision 560
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "5950cca2dadad96cc4875f71d408bc15f6c32d48aea559be32201765f15a147b"
+    sha256 sonoma: "d6434db5e86f13150eb097f3a019e3039c794e62d36727947817c6503c3ca9a4"
   end
 
   depends_on "bison" => :build
@@ -235,9 +235,9 @@ class VshPhp72 < Formula
       touch var/"log/php-fpm#{bin_suffix}.log"
     end
 
-    #mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
-    #mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
-    #mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
+    mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
+    mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
+    mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
 
     mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
     rm_f "#{bin}/phar"
