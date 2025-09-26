@@ -10,7 +10,7 @@ jobs:
 
   test-build-bottles:
     if: "${{ (!contains(github.event.commits[0].message, '[skip ci]')) && (github.event.label.name == 'test') }}"
-    runs-on: macos-14-selfhosted
+    runs-on: macos-15-selfhosted
     steps:
       - uses: actions/setup-python@v4
         with:
