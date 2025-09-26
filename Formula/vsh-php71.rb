@@ -5,7 +5,7 @@ class VshPhp71 < Formula
   version "7.1.33"
   sha256 "3e7a3342f58ca8698635631993a91541d88e7ddf3335e15194d23dafd5bae409"
   license "PHP-3.01"
-  revision 549
+  revision 550
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -237,9 +237,9 @@ class VshPhp71 < Formula
       touch var/"log/php-fpm#{bin_suffix}.log"
     end
 
-    #mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
-    #mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
-    #mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
+    mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
+    mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
+    mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
 
     mv "#{bin}/phar.phar", "#{bin}/phar#{bin_suffix}.phar"
     rm_f "#{bin}/phar"
