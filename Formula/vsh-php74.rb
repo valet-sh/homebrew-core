@@ -5,15 +5,15 @@ class VshPhp74 < Formula
   version "7.4.33"
   sha256 "69d0995fd377caa204372d28420463ed5dffd35cdc6013fa33ee41b8fcc4cfb2"
   license "PHP-3.01"
-  revision 562
+  revision 563
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "02c31aed40c0a06fbc7d3ba96a57baff35cbe9717e8e0c7c134ffbfd824314af"
+    sha256 sequoia: "f5a4a27e99b655bca875690bd01523ad227ace1277d9ee73ea23378d62fbde71"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconfig" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -27,7 +27,7 @@ class VshPhp74 < Formula
   depends_on "glib"
   depends_on "gd"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "krb5"
   depends_on "jpeg"
   depends_on "libffi"
@@ -59,8 +59,8 @@ class VshPhp74 < Formula
   patch :DATA
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.0.4.tar.gz"
-    sha256 "7e4f28fc65c8b535de43b6d2ec57429476a6de1d53c4d440a9108ae8d28e01f4"
+    url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
+    sha256 "217e05fbe43940fcbfe18e8f15e3e8ded7dd35926b0bee916782d0fffe8dcc53"
   end
 
   resource "xdebug2_module" do
@@ -69,8 +69,8 @@ class VshPhp74 < Formula
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/3.4.4.tar.gz"
-    sha256 "8204d228ecbe5f744d625c90364808616127471581227415bca18857af981369"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
@@ -86,10 +86,12 @@ class VshPhp74 < Formula
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
 
+    # cURL needs the value to be long,
+    inreplace "ext/curl/interface.c", /CURLOPT_VERBOSE,\s+0/, "CURLOPT_VERBOSE, 0L"
+
     config_path = etc/"#{name}"
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
-
 
     # Prevent homebrew from hardcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
@@ -205,14 +207,17 @@ class VshPhp74 < Formula
     resource("xdebug_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
       system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
-      system "make", "clean"
-      system "make", "all"
+      system "make"
+      system "make"
       system "make", "install"
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"
@@ -335,10 +340,10 @@ class VshPhp74 < Formula
     Utils.popen_read("#{bin}/php-config#{bin_suffix} --extension-dir").chomp
   end
 
-  service do 
+  service do
     php_version = @formula.version.to_s.split(".")[0..1].join(".")
     bin_suffix = php_version
-  
+
     run ["#{opt_sbin}/php-fpm#{bin_suffix}", "--nodaemonize"]
     keep_alive true
     working_dir var
