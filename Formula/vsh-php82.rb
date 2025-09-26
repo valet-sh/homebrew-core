@@ -1,11 +1,11 @@
 class VshPhp82 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-8.2.25.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.2.25.tar.xz"
-  sha256 "330b54876ea1d05ade12ee9726167332058bccd58dffa1d4e12117f6b4f616b9"
+  url "https://www.php.net/distributions/php-8.2.29.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.2.29.tar.xz"
+  sha256 "475f991afd2d5b901fb410be407d929bc00c46285d3f439a02c59e8b6fe3589c"
   license "PHP-3.01"
-  revision 61
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -13,7 +13,7 @@ class VshPhp82 < Formula
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconfig" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -25,7 +25,7 @@ class VshPhp82 < Formula
   depends_on "gd"
   depends_on "gettext"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "krb5"
   depends_on "libpq"
   depends_on "libsodium"
@@ -48,11 +48,18 @@ class VshPhp82 < Formula
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  patch :DATA
+  on_macos do
+    depends_on "gcc"
 
-  resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
-    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
+    # PHP build system incorrectly links system libraries
+    # see https://github.com/php/php-src/issues/10680
+    patch :DATA
+  end
+
+  # https://github.com/Homebrew/homebrew-core/issues/235820
+  # https://clang.llvm.org/docs/UsersManual.html#gcc-extensions-not-implemented-yet
+  fails_with :clang do
+    cause "Performs worse due to lack of general global register variables"
   end
 
   resource "imagick_module" do
@@ -61,8 +68,14 @@ class VshPhp82 < Formula
   end
 
   def install
+    # GCC -Os performs worse than -O1 and significantly worse than -O2/-O3.
+    # We lack a DSL to enable -O2 so just use -O3 which is similar.
+    ENV.O3 if OS.mac?
+
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
+
+    inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
 
     config_path = etc/"#{name}"
     # Prevent system pear config from inhibiting pear install
@@ -86,7 +99,11 @@ class VshPhp82 < Formula
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
-    headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
+    headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
+
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
 
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20210902"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
@@ -102,7 +119,6 @@ class VshPhp82 < Formula
       --with-config-file-scan-dir=#{config_path}/conf.d
       --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
-      --with-os-sdkpath=#{MacOS.sdk_path_if_needed}
       --enable-bcmath
       --enable-calendar
       --enable-dba
@@ -128,8 +144,8 @@ class VshPhp82 < Formula
       --with-external-gd
       --with-external-pcre
       --with-ffi
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
@@ -159,8 +175,6 @@ class VshPhp82 < Formula
       --with-xsl
       --with-zip
       --with-zlib
-      --enable-dtrace
-      --with-ldap-sasl
     ]
 
     system "./configure", *args
