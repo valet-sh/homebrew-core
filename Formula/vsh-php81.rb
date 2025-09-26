@@ -5,11 +5,11 @@ class VshPhp81 < Formula
   mirror "https://fossies.org/linux/www/php-8.1.30.tar.xz"
   sha256 "f24a6007f0b25a53cb7fbaee69c85017e0345b62089c2425a0afb7e177192ed1"
   license "PHP-3.01"
-  revision 72
+  revision 73
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d3f454bf6cbe1aeda0eeb6a34b5b963125b5379f413b8cfb2efb79682b9fc23c"
+    sha256 sonoma: "aa6e2178b563bd112ca783992d14c4ce3ecdb98ea5bff845a009e119c41d0f91"
   end
 
   depends_on "bison" => :build
@@ -68,13 +68,13 @@ class VshPhp81 < Formula
   end
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/refs/tags/3.2.0.tar.gz"
-    sha256 "a5979f2060b92375523662f451bfebd76b718116921c60bcdf8e87be0c58dd72"
+    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
+    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/refs/tags/3.6.0RC1.tar.gz"
-    sha256 "2c428d307cffe6a7a53772c2d4f5a2231d59c234298c9d12366c9166bd3b51a9"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
@@ -208,8 +208,11 @@ class VshPhp81 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"

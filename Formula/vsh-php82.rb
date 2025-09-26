@@ -5,11 +5,11 @@ class VshPhp82 < Formula
   mirror "https://fossies.org/linux/www/php-8.2.25.tar.xz"
   sha256 "330b54876ea1d05ade12ee9726167332058bccd58dffa1d4e12117f6b4f616b9"
   license "PHP-3.01"
-  revision 60
+  revision 61
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "5aeb2bc7088e4fb1fac496024c257168ef36ed5ded0f61f54cae43ba2f5a3006"
+    sha256 sonoma: "7706ccfaa1abe5689654c35b135088a4689ce695da3fba2bd4332d48181c8bfb"
   end
 
   depends_on "bison" => :build
@@ -51,13 +51,13 @@ class VshPhp82 < Formula
   patch :DATA
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/refs/tags/3.2.1.tar.gz"
-    sha256 "bfdaac38997be3fd8391118a6924196eca8adafb77f59085dd0afb494d54968d"
+    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
+    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/refs/tags/3.7.0.tar.gz"
-    sha256 "aa2e311efb7348350c7332876252720af6fb71210d13268de765bc41f51128f9"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
@@ -176,8 +176,11 @@ class VshPhp82 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"
@@ -296,10 +299,10 @@ class VshPhp82 < Formula
     File.basename(extension_dir)
   end
 
-  service do 
+  service do
     php_version = @formula.version.to_s.split(".")[0..1].join(".")
     bin_suffix = php_version
-  
+
     run ["#{opt_sbin}/php-fpm#{bin_suffix}", "--nodaemonize"]
     keep_alive true
     working_dir var
