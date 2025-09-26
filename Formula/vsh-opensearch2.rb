@@ -4,11 +4,11 @@ class VshOpensearch2 < Formula
   url "https://github.com/opensearch-project/OpenSearch/archive/2.5.0.tar.gz"
   sha256 "a79fa55320126e0292b6d1b7a5225c8f5cae2c30b5d2784611eb0b71710f9bb7"
   license "Apache-2.0"
-  revision 25
+  revision 26
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "6f2e3e4092363ff6718ff9ca9eb234d4b7ec3d8fe4ff6521c148b576bc2569b6"
+    sha256 sonoma: "9fc8c53cec68514059d151e2544a04e8d905243233b3ba1b335c4b6a52379c60"
   end
 
   depends_on "gradle@7" => :build
@@ -46,8 +46,8 @@ class VshOpensearch2 < Formula
       open(config_file, "a") { |f| f.puts "transport.host: 127.0.0.1\ntransport.port: 9322\n" }
     end
 
-      # add placeholder to avoid removal of empty directory
-      touch "#{libexec}/config/jvm.options.d/.keepme"
+    # add placeholder to avoid removal of empty directory
+    touch "#{libexec}/config/jvm.options.d/.keepme"
 
     # Move config files into etc
     (etc/"#{name}").install Dir[libexec/"config/*"]
