@@ -48,11 +48,17 @@ jobs:
         arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
         arch --x86_64 /usr/local/bin/brew tap valet-sh/core
         arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch1
+        arch --x86_64 /usr/local/bin/brew uninstall vsh-elasticsearch1
         arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch2
+        arch --x86_64 /usr/local/bin/brew uninstall vsh-elasticsearch2
         arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch5
+        arch --x86_64 /usr/local/bin/brew uninstall vsh-elasticsearch5
         arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch6
+        arch --x86_64 /usr/local/bin/brew uninstall vsh-elasticsearch6
         arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch7
+        arch --x86_64 /usr/local/bin/brew uninstall vsh-elasticsearch7
         arch --x86_64 /usr/local/bin/brew install vsh-elasticsearch8
+        arch --x86_64 /usr/local/bin/brew uninstall vsh-elasticsearch8
   install-opensearch-x86:
     runs-on: macos-15
     steps:
