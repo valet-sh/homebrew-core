@@ -58,6 +58,8 @@ class VshElasticsearch8 < Formula
         base_dir=$(dirname $0)
         PLUGIN_BIN=${base_dir}/elasticsearch-plugin
 
+        unset _JAVA_OPTIONS
+
         for plugin in $(${PLUGIN_BIN} list); do
             "${PLUGIN_BIN}" remove "${plugin}"
             "${PLUGIN_BIN}" install "${plugin}"
@@ -86,6 +88,8 @@ class VshElasticsearch8 < Formula
     ln_s var/"#{name}/plugins", libexec/"plugins" unless (libexec/"plugins").exist?
     # fix test not being able to create keystore because of sandbox permissions
     system libexec/"bin/elasticsearch-keystore", "create" unless (etc/"#{name}/elasticsearch.keystore").exist?
+
+    system libexec/"bin/elasticsearch-plugin list"
 
     # run plugin update script
     system libexec/"bin/elasticsearch-plugin-update"
