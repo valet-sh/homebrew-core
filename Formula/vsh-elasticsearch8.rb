@@ -3,7 +3,7 @@ class VshElasticsearch8 < Formula
   homepage "https://www.elastic.co/products/elasticsearch"
   url "https://github.com/elastic/elasticsearch/archive/v8.18.7.tar.gz"
   sha256 "9abe87f042a40ff30125ed42c8d1562273f77695328edbdbed0e945c94b1c68d"
-  revision 1
+  revision 2
   license "Apache-2.0"
 
   bottle do
