@@ -3,7 +3,7 @@ class VshValkey8 < Formula
   homepage "https://valkey.io"
   url "https://github.com/valkey-io/valkey/archive/refs/tags/8.1.2.tar.gz"
   sha256 "747b272191c15c7387f4ad3b3e7eda16deb1cffc6425e0571547f54e4d2e3646"
-  revision 9
+  revision 10
   license all_of: [
     "BSD-3-Clause",
     "BSD-2-Clause", # deps/jemalloc, deps/linenoise, src/lzf*
@@ -14,7 +14,7 @@ class VshValkey8 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "6abfb2b7a35e4631aca00d540373b13e5e31aa95c0384e6f085b88e62e06e02c"
+    sha256 sonoma: "a4b8ea65e0294965c76ab751326d4cff649314fa273abab8f9d733537a9740bd"
   end
 
   depends_on "openssl@3"
@@ -35,9 +35,6 @@ class VshValkey8 < Formula
       exec #{libexec}/bin/valkey-cli -p 6389 "$@"
     EOS
 
-    (vardir).mkpath
-    %w[run db/valkey log].each { |p| (vardir/p).mkpath }
-
     # Fix up default conf file to match our paths
     inreplace "valkey.conf" do |s|
       s.gsub! "/var/run/valkey_6379.pid", vardir/"run/valkey8.pid"
@@ -48,6 +45,11 @@ class VshValkey8 < Formula
 
     etcdir.install "valkey.conf"
     etcdir.install "sentinel.conf" => "valkey-sentinel.conf"
+  end
+
+  def post_install
+    (vardir).mkpath
+    %w[run db/valkey log].each { |p| (vardir/p).mkpath }
   end
 
   service do
