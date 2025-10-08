@@ -5,11 +5,11 @@ class VshMysql80 < Formula
   mirror "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/mysql-8.0/8.0.43-0ubuntu0.24.04.2/mysql-8.0_8.0.43.orig.tar.gz"
   sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 42
+  revision 43
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "45c8a531b5c454b36405c14424be83d5088f497b38dc58e5500bcb1724db19c6"
+    sha256 sonoma: "6df1f96a06dc3e48ad791ac6c0a188473127efa48761fccc72acc8608d0595de"
   end
 
   depends_on "bison" => :build
