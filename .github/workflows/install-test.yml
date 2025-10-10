@@ -107,7 +107,7 @@ jobs:
         arch --x86_64 /usr/local/bin/brew update || true
         arch --x86_64 /usr/local/bin/brew upgrade $(brew outdated --formula -q) || true     
         arch --x86_64 /usr/local/bin/brew tap valet-sh/core
-        arch --x86_64 /usr/local/bin/brew install vsh-mariadb104
+        #arch --x86_64 /usr/local/bin/brew install vsh-mariadb104
         arch --x86_64 /usr/local/bin/brew install vsh-mariadb106
         arch --x86_64 /usr/local/bin/brew install vsh-mariadb1011
         arch --x86_64 /usr/local/bin/brew install vsh-mariadb114
