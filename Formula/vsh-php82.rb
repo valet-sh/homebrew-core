@@ -63,8 +63,8 @@ class VshPhp82 < Formula
   end
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.2.1.tar.gz"
-    sha256 "bfdaac38997be3fd8391118a6924196eca8adafb77f59085dd0afb494d54968d"
+    url "https://github.com/xdebug/xdebug/archive/3.3.1.tar.gz"
+    sha256 "76d0467154d7f2714a07f88c7c17658e24dd58fb919a9aa08ab4bc23dccce76d"
   end
 
   resource "imagick_module" do
