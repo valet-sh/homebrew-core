@@ -188,6 +188,10 @@ class VshPhp82 < Formula
 
     resource("xdebug_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
+
+      ENV["CC"] = "/usr/bin/clang"
+      ENV["CXX"] = "/usr/bin/clang++"
+
       system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
       system "make", "clean"
       system "make", "all"
