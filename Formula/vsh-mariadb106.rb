@@ -4,11 +4,11 @@ class VshMariadb106 < Formula
   url "https://archive.mariadb.org/mariadb-10.6.23/source/mariadb-10.6.23.tar.gz"
   sha256 "baf4bf37a051e892e71724ee752891adb7cfc69cd28d08735c3607d30c693c23"
   license "GPL-2.0-only"
-  revision 3
+  revision 4
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "97227cdd4c86257261ad6df0c10421e818fa1363bbb8b3ff60a47bf191d4c7fd"
+    sha256 sonoma: "4cf02b622c14f6994495b55da2e79c815ef4c170fe8ddaa20c550224d7714b9f"
   end
 
   depends_on "bison" => :build
