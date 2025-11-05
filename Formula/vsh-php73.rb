@@ -5,7 +5,7 @@ class VshPhp73 < Formula
   version "7.3.33"
   sha256 "c3bb3db324daed97e2c50f2755462df5b0cb4b912ab5b38c96dc6cfaca92475e"
   license "PHP-3.01"
-  revision 563
+  revision 564
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -232,6 +232,11 @@ class VshPhp73 < Formula
     inreplace "sapi/fpm/www.conf" do |s|
       s.gsub!(/listen =.*/, "listen = /tmp/#{name}.sock")
     end
+
+    # php 7.3 known bug
+    # SO discussion: https://stackoverflow.com/a/53709484/791609
+    # bug report: https://bugs.php.net/bug.php?id=77260
+    inreplace "php.ini-development", ";pcre.jit=1", "pcre.jit=0"
 
     config_files = {
       "php.ini-development"   => "php.ini",
