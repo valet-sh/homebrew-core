@@ -1,11 +1,11 @@
 class VshPhp74 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/78eed5e70e3c16e2d310ccd95b9e247891033cf5.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/e5b417c927f43ba9c4b237a672de1ec60d6f77ca.tar.gz"
   version "7.4.33"
-  sha256 "2514d5ba7da9f9546a3be16c88f11ab59fa89796a3cf2b6b3f747c596c7c8b21"
+  sha256 "7f9b8e85407c223c3a45e11c1bb4fbebf66ef7c9008277eb1ddba2b5d1037384"
   license "PHP-3.01"
-  revision 564
+  revision 566
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -49,18 +49,18 @@ class VshPhp74 < Formula
   uses_from_macos "xz" => :build
   uses_from_macos "bzip2"
   uses_from_macos "libedit"
-  uses_from_macos "libffi", since: :catalina
+  uses_from_macos "libffi"
   uses_from_macos "libxml2"
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  on_macos do
-    depends_on "gcc"
+  depends_on "gcc"
 
-    # PHP build system incorrectly links system libraries
-    # see https://github.com/php/php-src/issues/10680
-    patch :DATA
+  fails_with :clang do
+    cause "Performs worse due to lack of general global register variables"
   end
+
+  patch :DATA
 
   resource "xdebug_module" do
     url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
@@ -84,29 +84,22 @@ class VshPhp74 < Formula
   end
 
   def install
-    # GCC -Os performs worse than -O1 and significantly worse than -O2/-O3.
-    # We lack a DSL to enable -O2 so just use -O3 which is similar.
-    ENV.O3 if OS.mac?
-
     # Work around for building with Xcode 15.3
     if DevelopmentTools.clang_build_version >= 1500
       ENV.append "CFLAGS", "-Wno-incompatible-function-pointer-types"
       ENV.append "LDFLAGS", "-lresolv"
     end
 
-    if OS.mac? && ENV.compiler.to_s.start_with?("gcc")
-      ENV.append "CFLAGS", "-Wno-incompatible-pointer-types"
-      ENV.append "CPPFLAGS", "-DL_ctermid=1024"
-      inreplace "ext/gd/gd.c", "func_p)()", "func_p)(...)"
-      inreplace "ext/gd/gd_ctx.c", "func_p)()", "func_p)(...)"
-      inreplace "ext/standard/scanf.c", "zend_long (*fn)()", "zend_long (*fn)(...)"
-    end
+    ENV.append "CFLAGS", "-Wno-incompatible-pointer-types" if OS.mac? && ENV.compiler.to_s.start_with?("gcc")
 
     # Work around to support `icu4c` 75, which needs C++17.
     ENV["ICU_CXXFLAGS"] = "-std=c++17"
 
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
+
+    # cURL needs the value to be long,
+    inreplace "ext/curl/interface.c", /CURLOPT_VERBOSE,\s+0/, "CURLOPT_VERBOSE, 0L"
 
     inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
 
@@ -151,6 +144,7 @@ class VshPhp74 < Formula
       --with-config-file-scan-dir=#{config_path}/conf.d
       --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
+      --disable-intl
       --enable-bcmath
       --enable-calendar
       --enable-dba
@@ -218,11 +212,6 @@ class VshPhp74 < Formula
       args << "--enable-dtrace"
       args << "--with-ldap-sasl"
       args << "--with-os-sdkpath=#{MacOS.sdk_path_if_needed}"
-    else
-      args << "--disable-dtrace"
-      args << "--without-ldap-sasl"
-      args << "--without-ndbm"
-      args << "--without-gdbm"
     end
 
     system "./configure", *args
@@ -238,13 +227,17 @@ class VshPhp74 < Formula
       mv "modules/xdebug.so", "#{php_ext_path}/xdebug2.so"
     }
 
-    #resource("xdebug_module").stage {
-    #  system "#{bin}/phpize#{bin_suffix}"
-    #  system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
-    #  system "make", "clean"
-    #  system "make", "all"
-    #  system "make", "install"
-    #}
+    resource("xdebug_module").stage {
+      system "#{bin}/phpize#{bin_suffix}"
+
+      ENV["CC"] = "/usr/bin/clang"
+      ENV["CXX"] = "/usr/bin/clang++"
+
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "make", "clean"
+      system "make", "all"
+      system "make", "install"
+    }
 
     resource("imagick_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
@@ -286,6 +279,19 @@ class VshPhp74 < Formula
     mv "#{bin}/pecl", "#{bin}/pecl#{bin_suffix}"
     mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
     mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
+
+    cd "ext/intl" do
+      system "#{bin}/phpize#{bin_suffix}"
+      if OS.mac?
+        # rubocop:disable all
+        ENV["CC"] = "/usr/bin/clang"
+        ENV["CXX"] = "/usr/bin/clang++"
+        # rubocop:enable all
+      end
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "make"
+      system "make", "install"
+    end
 
   end
 
@@ -338,6 +344,7 @@ class VshPhp74 < Formula
     system bin/"pear#{bin_suffix}", "update-channels"
 
     %w[
+      intl
       opcache
     ].each do |e|
       ext_config_path = etc/"#{name}/conf.d/ext-#{e}.ini"
@@ -487,44 +494,110 @@ class VshPhp74 < Formula
 end
 
 __END__
-diff --git a/build/php.m4 b/build/php.m4
-index 3624a33a8e..d17a635c2c 100644
---- a/build/php.m4
-+++ b/build/php.m4
-@@ -425,7 +425,7 @@ dnl
- dnl Adds a path to linkpath/runpath (LDFLAGS).
- dnl
- AC_DEFUN([PHP_ADD_LIBPATH],[
--  if test "$1" != "/usr/$PHP_LIBDIR" && test "$1" != "/usr/lib"; then
-+  if test "$1" != "$PHP_OS_SDKPATH/usr/$PHP_LIBDIR" && test "$1" != "/usr/lib"; then
-     PHP_EXPAND_PATH($1, ai_p)
-     ifelse([$2],,[
-       _PHP_ADD_LIBPATH_GLOBAL([$ai_p])
-@@ -470,7 +470,7 @@ dnl
- dnl Add an include path. If before is 1, add in the beginning of INCLUDES.
- dnl
- AC_DEFUN([PHP_ADD_INCLUDE],[
--  if test "$1" != "/usr/include"; then
-+  if test "$1" != "$PHP_OS_SDKPATH/usr/include"; then
-     PHP_EXPAND_PATH($1, ai_p)
-     PHP_RUN_ONCE(INCLUDEPATH, $ai_p, [
-       if test "$2"; then
-diff --git a/configure.ac b/configure.ac
-index 36c6e5e3e2..71b1a16607 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -190,6 +190,14 @@ PHP_ARG_WITH([libdir],
-   [lib],
-   [no])
+diff --git a/ext/curl/interface.c b/ext/curl/interface.c
+index 630cf86ce27..27b42ee15cb 100644
+--- a/ext/curl/interface.c
++++ b/ext/curl/interface.c
+@@ -1579,11 +1579,11 @@ static int curl_fnmatch(void *ctx, const char *pattern, const char *string)
 
-+dnl Support systems with system libraries/includes in e.g. /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk.
-+PHP_ARG_WITH([os-sdkpath],
-+  [for system SDK directory],
-+  [AS_HELP_STRING([--with-os-sdkpath=NAME],
-+    [Ignore system libraries and includes in NAME rather than /])],
-+  [],
-+  [no])
-+
- PHP_ARG_ENABLE([rpath],
-   [whether to enable runpaths],
-   [AS_HELP_STRING([--disable-rpath],
+ /* {{{ curl_progress
+  */
+-static size_t curl_progress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
++static int curl_progress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+ {
+ 	php_curl *ch = (php_curl *)clientp;
+ 	php_curl_progress *t = ch->handlers->progress;
+-	size_t	rval = 0;
++	int rval = 0;
+
+ #if PHP_CURL_DEBUG
+ 	fprintf(stderr, "curl_progress() called\n");
+@@ -1960,8 +1960,8 @@ static void _php_curl_set_default_options(php_curl *ch)
+ {
+ 	char *cainfo;
+
+-	curl_easy_setopt(ch->cp, CURLOPT_NOPROGRESS,        1);
+-	curl_easy_setopt(ch->cp, CURLOPT_VERBOSE,           0);
++	curl_easy_setopt(ch->cp, CURLOPT_NOPROGRESS,        1L);
++	curl_easy_setopt(ch->cp, CURLOPT_VERBOSE,           0L);
+ 	curl_easy_setopt(ch->cp, CURLOPT_ERRORBUFFER,       ch->err.str);
+ 	curl_easy_setopt(ch->cp, CURLOPT_WRITEFUNCTION,     curl_write);
+ 	curl_easy_setopt(ch->cp, CURLOPT_FILE,              (void *) ch);
+@@ -1972,8 +1972,8 @@ static void _php_curl_set_default_options(php_curl *ch)
+ #if !defined(ZTS)
+ 	curl_easy_setopt(ch->cp, CURLOPT_DNS_USE_GLOBAL_CACHE, 1);
+ #endif
+-	curl_easy_setopt(ch->cp, CURLOPT_DNS_CACHE_TIMEOUT, 120);
+-	curl_easy_setopt(ch->cp, CURLOPT_MAXREDIRS, 20); /* prevent infinite redirects */
++	curl_easy_setopt(ch->cp, CURLOPT_DNS_CACHE_TIMEOUT, 120L);
++	curl_easy_setopt(ch->cp, CURLOPT_MAXREDIRS, 20L); /* prevent infinite redirects */
+
+ 	cainfo = INI_STR("openssl.cafile");
+ 	if (!(cainfo && cainfo[0] != '\0')) {
+@@ -1984,7 +1984,7 @@ static void _php_curl_set_default_options(php_curl *ch)
+ 	}
+
+ #if defined(ZTS)
+-	curl_easy_setopt(ch->cp, CURLOPT_NOSIGNAL, 1);
++	curl_easy_setopt(ch->cp, CURLOPT_NOSIGNAL, 1L);
+ #endif
+ }
+ /* }}} */
+@@ -2388,7 +2388,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
+ 				php_error_docref(NULL, E_NOTICE, "CURLOPT_SSL_VERIFYHOST with value 1 is deprecated and will be removed as of libcurl 7.28.1. It is recommended to use value 2 instead");
+ #else
+ 				php_error_docref(NULL, E_NOTICE, "CURLOPT_SSL_VERIFYHOST no longer accepts the value 1, value 2 will be used instead");
+-				error = curl_easy_setopt(ch->cp, option, 2);
++				error = curl_easy_setopt(ch->cp, option, 2L);
+ 				break;
+ #endif
+ 			}
+@@ -2587,7 +2587,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
+ 				return 1;
+ 			}
+ # endif
+-			error = curl_easy_setopt(ch->cp, option, lval);
++			error = curl_easy_setopt(ch->cp, option, (long) lval);
+ 			break;
+ 		case CURLOPT_SAFE_UPLOAD:
+ 			if (!zend_is_true(zvalue)) {
+@@ -2957,7 +2957,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
+ 				return FAILURE;
+ 			}
+ #endif
+-			error = curl_easy_setopt(ch->cp, option, lval);
++			error = curl_easy_setopt(ch->cp, option, (long) lval);
+ 			break;
+
+ 		case CURLOPT_HEADERFUNCTION:
+@@ -2975,7 +2975,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
+ 					/* no need to build the mime structure for empty hashtables;
+ 					   also works around https://github.com/curl/curl/issues/6455 */
+ 					curl_easy_setopt(ch->cp, CURLOPT_POSTFIELDS, "");
+-					error = curl_easy_setopt(ch->cp, CURLOPT_POSTFIELDSIZE, 0);
++					error = curl_easy_setopt(ch->cp, CURLOPT_POSTFIELDSIZE, 0L);
+ 				} else {
+ 					return build_mime_structure_from_hash(ch, zvalue);
+ 				}
+@@ -3054,7 +3054,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
+ #if LIBCURL_VERSION_NUM >= 0x071301 /* Available since 7.19.1 */
+ 		case CURLOPT_POSTREDIR:
+ 			lval = zval_get_long(zvalue);
+-			error = curl_easy_setopt(ch->cp, CURLOPT_POSTREDIR, lval & CURL_REDIR_POST_ALL);
++			error = curl_easy_setopt(ch->cp, CURLOPT_POSTREDIR, (long) (lval & CURL_REDIR_POST_ALL));
+ 			break;
+ #endif
+
+@@ -3096,11 +3096,11 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
+ 			if (zend_is_true(zvalue)) {
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGFUNCTION, curl_debug);
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGDATA, (void *)ch);
+-				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 1);
++				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 1L);
+ 			} else {
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGFUNCTION, NULL);
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGDATA, NULL);
+-				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 0);
++				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 0L);
+ 			}
+ 			break;

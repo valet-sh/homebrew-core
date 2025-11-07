@@ -1,19 +1,19 @@
 class VshPhp80 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/b27aa4bf6d3e236bb853d2f1ef9cca338a3a5370.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/c56202b2b1f37a474c0f779253487420311f2f42.tar.gz"
   version "8.0.30"
-  sha256 "ea4a8d291f031921fafddd4878d12db1329391d9e8450ccb96aebb823a230aae"
+  sha256 "091e70a151ec18206aa15a69d774ea661b0d43d4ba3fbbb3f794a5e81773ffce"
   license "PHP-3.01"
-  revision 562
+  revision 564
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "d44b2c70425f9097bee3f88888f6c141ddbcb6ce22ff82abf8447d6d486e235c"
+    sha256 sonoma: "d44b2c70425f9097bee3f88888f6c141ddbcb6ce22ff82abf8447d6d486e235c"
   end
 
   depends_on "bison" => :build
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "re2c" => :build
   depends_on "apr"
   depends_on "apr-util"
@@ -27,7 +27,7 @@ class VshPhp80 < Formula
   depends_on "gettext"
   depends_on "glib"
   depends_on "gmp"
-  depends_on "icu4c@75"
+  depends_on "icu4c@77"
   depends_on "jpeg"
   depends_on "libpng"
   depends_on "libyaml"
@@ -49,18 +49,24 @@ class VshPhp80 < Formula
   uses_from_macos "xz" => :build
   uses_from_macos "bzip2"
   uses_from_macos "libedit"
-  uses_from_macos "libffi", since: :catalina
+  uses_from_macos "libffi"
   uses_from_macos "libxml2"
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  # PHP build system incorrectly links system libraries
-  # see https://github.com/php/php-src/pull/3472
+  depends_on "gcc" => :build # must never be a runtime dependency
+
+  # https://github.com/Homebrew/homebrew-core/issues/235820
+  # https://clang.llvm.org/docs/UsersManual.html#gcc-extensions-not-implemented-yet
+  fails_with :clang do
+    cause "Performs worse due to lack of general global register variables"
+  end
+
   patch :DATA
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.3.1.tar.gz"
-    sha256 "76d0467154d7f2714a07f88c7c17658e24dd58fb919a9aa08ab4bc23dccce76d"
+    url "https://github.com/xdebug/xdebug/archive/3.4.7.tar.gz"
+    sha256 "6959726ee2bb99efd660796736801b198ec0847b6360230a8143ad5e2d2063c2"
   end
 
   resource "imagick_module" do
@@ -75,6 +81,8 @@ class VshPhp80 < Formula
       ENV.append "LDFLAGS", "-lresolv"
     end
 
+    ENV.append "CFLAGS", "-Wno-incompatible-pointer-types" if OS.mac? && ENV.compiler.to_s.start_with?("gcc")
+
     # Work around to support `icu4c` 75, which needs C++17.
     ENV["ICU_CXXFLAGS"] = "-std=c++17"
 
@@ -87,7 +95,6 @@ class VshPhp80 < Formula
 
     ENV["lt_cv_path_SED"] = "sed"
 
-    # Identify build provider in php -v output and phpinfo()
     ENV["PHP_BUILD_PROVIDER"] = "valet.sh"
 
     # system pkg-config missing
@@ -120,6 +127,7 @@ class VshPhp80 < Formula
       --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
       --with-os-sdkpath=#{MacOS.sdk_path_if_needed}
+      --disable-intl
       --enable-bcmath
       --enable-calendar
       --enable-dba
@@ -132,7 +140,6 @@ class VshPhp80 < Formula
       --enable-mbregex
       --enable-mbstring
       --enable-mysqlnd
-      --enable-opcache
       --enable-pcntl
       --enable-phpdbg
       --enable-phpdbg-readline
@@ -239,6 +246,19 @@ class VshPhp80 < Formula
     mv "#{bin}/pear", "#{bin}/pear#{bin_suffix}"
     mv "#{bin}/peardev", "#{bin}/peardev#{bin_suffix}"
 
+    cd "ext/intl" do
+      system "#{bin}/phpize#{bin_suffix}"
+      if OS.mac?
+        # rubocop:disable all
+        ENV["CC"] = "/usr/bin/clang"
+        ENV["CXX"] = "/usr/bin/clang++"
+        # rubocop:enable all
+      end
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "make"
+      system "make", "install"
+    end
+
   end
 
   def post_install
@@ -290,6 +310,7 @@ class VshPhp80 < Formula
     system bin/"pear#{bin_suffix}", "update-channels"
 
     %w[
+      intl
       opcache
     ].each do |e|
       ext_config_path = etc/"#{name}/conf.d/ext-#{e}.ini"
@@ -426,44 +447,110 @@ class VshPhp80 < Formula
 end
 
 __END__
-diff --git a/build/php.m4 b/build/php.m4
-index 3624a33a8e..d17a635c2c 100644
---- a/build/php.m4
-+++ b/build/php.m4
-@@ -425,7 +425,7 @@ dnl
- dnl Adds a path to linkpath/runpath (LDFLAGS).
- dnl
- AC_DEFUN([PHP_ADD_LIBPATH],[
--  if test "$1" != "/usr/$PHP_LIBDIR" && test "$1" != "/usr/lib"; then
-+  if test "$1" != "$PHP_OS_SDKPATH/usr/$PHP_LIBDIR" && test "$1" != "/usr/lib"; then
-     PHP_EXPAND_PATH($1, ai_p)
-     ifelse([$2],,[
-       _PHP_ADD_LIBPATH_GLOBAL([$ai_p])
-@@ -470,7 +470,7 @@ dnl
- dnl Add an include path. If before is 1, add in the beginning of INCLUDES.
- dnl
- AC_DEFUN([PHP_ADD_INCLUDE],[
--  if test "$1" != "/usr/include"; then
-+  if test "$1" != "$PHP_OS_SDKPATH/usr/include"; then
-     PHP_EXPAND_PATH($1, ai_p)
-     PHP_RUN_ONCE(INCLUDEPATH, $ai_p, [
-       if test "$2"; then
-diff --git a/configure.ac b/configure.ac
-index 36c6e5e3e2..71b1a16607 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -190,6 +190,14 @@ PHP_ARG_WITH([libdir],
-   [lib],
-   [no])
+diff --git a/ext/curl/interface.c b/ext/curl/interface.c
+index 134de48d6fe..90f486dfe77 100644
+--- a/ext/curl/interface.c
++++ b/ext/curl/interface.c
+@@ -1453,11 +1453,11 @@ static int curl_fnmatch(void *ctx, const char *pattern, const char *string)
+ /* }}} */
 
-+dnl Support systems with system libraries/includes in e.g. /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk.
-+PHP_ARG_WITH([os-sdkpath],
-+  [for system SDK directory],
-+  [AS_HELP_STRING([--with-os-sdkpath=NAME],
-+    [Ignore system libraries and includes in NAME rather than /])],
-+  [],
-+  [no])
-+
- PHP_ARG_ENABLE([rpath],
-   [whether to enable runpaths],
-   [AS_HELP_STRING([--disable-rpath],
+ /* {{{ curl_progress */
+-static size_t curl_progress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
++static int curl_progress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+ {
+ 	php_curl *ch = (php_curl *)clientp;
+ 	php_curl_progress *t = ch->handlers->progress;
+-	size_t	rval = 0;
++	int rval = 0;
+
+ #if PHP_CURL_DEBUG
+ 	fprintf(stderr, "curl_progress() called\n");
+@@ -1817,8 +1817,8 @@ static void _php_curl_set_default_options(php_curl *ch)
+ {
+ 	char *cainfo;
+
+-	curl_easy_setopt(ch->cp, CURLOPT_NOPROGRESS,        1);
+-	curl_easy_setopt(ch->cp, CURLOPT_VERBOSE,           0);
++	curl_easy_setopt(ch->cp, CURLOPT_NOPROGRESS,        1L);
++	curl_easy_setopt(ch->cp, CURLOPT_VERBOSE,           0L);
+ 	curl_easy_setopt(ch->cp, CURLOPT_ERRORBUFFER,       ch->err.str);
+ 	curl_easy_setopt(ch->cp, CURLOPT_WRITEFUNCTION,     curl_write);
+ 	curl_easy_setopt(ch->cp, CURLOPT_FILE,              (void *) ch);
+@@ -1829,8 +1829,8 @@ static void _php_curl_set_default_options(php_curl *ch)
+ #ifndef ZTS
+ 	curl_easy_setopt(ch->cp, CURLOPT_DNS_USE_GLOBAL_CACHE, 1);
+ #endif
+-	curl_easy_setopt(ch->cp, CURLOPT_DNS_CACHE_TIMEOUT, 120);
+-	curl_easy_setopt(ch->cp, CURLOPT_MAXREDIRS, 20); /* prevent infinite redirects */
++	curl_easy_setopt(ch->cp, CURLOPT_DNS_CACHE_TIMEOUT, 120L);
++	curl_easy_setopt(ch->cp, CURLOPT_MAXREDIRS, 20L); /* prevent infinite redirects */
+
+ 	cainfo = INI_STR("openssl.cafile");
+ 	if (!(cainfo && cainfo[0] != '\0')) {
+@@ -1841,7 +1841,7 @@ static void _php_curl_set_default_options(php_curl *ch)
+ 	}
+
+ #ifdef ZTS
+-	curl_easy_setopt(ch->cp, CURLOPT_NOSIGNAL, 1);
++	curl_easy_setopt(ch->cp, CURLOPT_NOSIGNAL, 1L);
+ #endif
+ }
+ /* }}} */
+@@ -2216,7 +2216,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue, bool i
+ 			lval = zval_get_long(zvalue);
+ 			if (lval == 1) {
+ 				php_error_docref(NULL, E_NOTICE, "CURLOPT_SSL_VERIFYHOST no longer accepts the value 1, value 2 will be used instead");
+-				error = curl_easy_setopt(ch->cp, option, 2);
++				error = curl_easy_setopt(ch->cp, option, 2L);
+ 				break;
+ 			}
+ 		case CURLOPT_AUTOREFERER:
+@@ -2377,7 +2377,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue, bool i
+ 				return 1;
+ 			}
+ # endif
+-			error = curl_easy_setopt(ch->cp, option, lval);
++			error = curl_easy_setopt(ch->cp, option, (long) lval);
+ 			break;
+ 		case CURLOPT_SAFE_UPLOAD:
+ 			if (!zend_is_true(zvalue)) {
+@@ -2711,7 +2711,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue, bool i
+
+ 		case CURLOPT_FOLLOWLOCATION:
+ 			lval = zend_is_true(zvalue);
+-			error = curl_easy_setopt(ch->cp, option, lval);
++			error = curl_easy_setopt(ch->cp, option, (long) lval);
+ 			break;
+
+ 		case CURLOPT_HEADERFUNCTION:
+@@ -2729,7 +2729,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue, bool i
+ 					/* no need to build the mime structure for empty hashtables;
+ 					   also works around https://github.com/curl/curl/issues/6455 */
+ 					curl_easy_setopt(ch->cp, CURLOPT_POSTFIELDS, "");
+-					error = curl_easy_setopt(ch->cp, CURLOPT_POSTFIELDSIZE, 0);
++					error = curl_easy_setopt(ch->cp, CURLOPT_POSTFIELDSIZE, 0L);
+ 				} else {
+ 					return build_mime_structure_from_hash(ch, zvalue);
+ 				}
+@@ -2794,7 +2794,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue, bool i
+
+ 		case CURLOPT_POSTREDIR:
+ 			lval = zval_get_long(zvalue);
+-			error = curl_easy_setopt(ch->cp, CURLOPT_POSTREDIR, lval & CURL_REDIR_POST_ALL);
++			error = curl_easy_setopt(ch->cp, CURLOPT_POSTREDIR, (long) (lval & CURL_REDIR_POST_ALL));
+ 			break;
+
+ 		/* the following options deal with files, therefore the open_basedir check
+@@ -2829,11 +2829,11 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue, bool i
+ 			if (zend_is_true(zvalue)) {
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGFUNCTION, curl_debug);
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGDATA, (void *)ch);
+-				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 1);
++				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 1L);
+ 			} else {
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGFUNCTION, NULL);
+ 				curl_easy_setopt(ch->cp, CURLOPT_DEBUGDATA, NULL);
+-				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 0);
++				curl_easy_setopt(ch->cp, CURLOPT_VERBOSE, 0L);
+ 			}
+ 			break;

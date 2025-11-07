@@ -1,11 +1,11 @@
 class VshPhp73 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/580fe100065f1cd83ac2ad5a6254a1f95dde93ee.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/2c97539020cfaadf6998f23fd301cb5158464fbc.tar.gz"
   version "7.3.33"
-  sha256 "c3bb3db324daed97e2c50f2755462df5b0cb4b912ab5b38c96dc6cfaca92475e"
+  sha256 "c9bc90d6c3d7b2d3a9e17581d36382f4db3e20e3e43225db5437c52e2f2de7bf"
   license "PHP-3.01"
-  revision 564
+  revision 565
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -58,8 +58,8 @@ class VshPhp73 < Formula
   patch :DATA
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.0.4.tar.gz"
-    sha256 "7e4f28fc65c8b535de43b6d2ec57429476a6de1d53c4d440a9108ae8d28e01f4"
+    url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
+    sha256 "217e05fbe43940fcbfe18e8f15e3e8ded7dd35926b0bee916782d0fffe8dcc53"
   end
 
   resource "xdebug2_module" do
@@ -189,10 +189,6 @@ class VshPhp73 < Formula
 
     resource("xdebug2_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
-
-      ENV["CC"] = "/usr/bin/clang"
-      ENV["CXX"] = "/usr/bin/clang++"
-
       system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
       system "make", "clean"
       system "make", "all"
@@ -202,10 +198,6 @@ class VshPhp73 < Formula
 
     resource("xdebug_module").stage {
       system "#{bin}/phpize#{bin_suffix}"
-
-      ENV["CC"] = "/usr/bin/clang"
-      ENV["CXX"] = "/usr/bin/clang++"
-
       system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
       system "make", "clean"
       system "make", "all"
