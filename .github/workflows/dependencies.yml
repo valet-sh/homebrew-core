@@ -27,7 +27,7 @@ jobs:
         
       - uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.DEPLOY_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           base: master
           branch-suffix: timestamp
           commit-message: Trigger bottle rebuild
