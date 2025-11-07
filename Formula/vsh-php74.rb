@@ -1,15 +1,15 @@
 class VshPhp74 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://github.com/shivammathur/php-src-backports/archive/e0f74921d4a5f1cbea083a9fd07aa78f930fd5f5.tar.gz"
+  url "https://github.com/shivammathur/php-src-backports/archive/78eed5e70e3c16e2d310ccd95b9e247891033cf5.tar.gz"
   version "7.4.33"
-  sha256 "69d0995fd377caa204372d28420463ed5dffd35cdc6013fa33ee41b8fcc4cfb2"
+  sha256 "2514d5ba7da9f9546a3be16c88f11ab59fa89796a3cf2b6b3f747c596c7c8b21"
   license "PHP-3.01"
-  revision 563
+  revision 564
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "f5a4a27e99b655bca875690bd01523ad227ace1277d9ee73ea23378d62fbde71"
+    sha256 sonoma: "5fddde35ac3ffbcbdc7fb3779e96c32b4b3ba3f02427afe94c455ee7eead7e22"
   end
 
   depends_on "bison" => :build
@@ -54,9 +54,13 @@ class VshPhp74 < Formula
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  # PHP build system incorrectly links system libraries
-  # see https://github.com/php/php-src/pull/3472
-  patch :DATA
+  on_macos do
+    depends_on "gcc"
+
+    # PHP build system incorrectly links system libraries
+    # see https://github.com/php/php-src/issues/10680
+    patch :DATA
+  end
 
   resource "xdebug_module" do
     url "https://github.com/xdebug/xdebug/archive/3.1.6.tar.gz"
@@ -73,11 +77,29 @@ class VshPhp74 < Formula
     sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
+  # https://github.com/Homebrew/homebrew-core/issues/235820
+  # https://clang.llvm.org/docs/UsersManual.html#gcc-extensions-not-implemented-yet
+  fails_with :clang do
+    cause "Performs worse due to lack of general global register variables"
+  end
+
   def install
+    # GCC -Os performs worse than -O1 and significantly worse than -O2/-O3.
+    # We lack a DSL to enable -O2 so just use -O3 which is similar.
+    ENV.O3 if OS.mac?
+
     # Work around for building with Xcode 15.3
     if DevelopmentTools.clang_build_version >= 1500
       ENV.append "CFLAGS", "-Wno-incompatible-function-pointer-types"
       ENV.append "LDFLAGS", "-lresolv"
+    end
+
+    if OS.mac? && ENV.compiler.to_s.start_with?("gcc")
+      ENV.append "CFLAGS", "-Wno-incompatible-pointer-types"
+      ENV.append "CPPFLAGS", "-DL_ctermid=1024"
+      inreplace "ext/gd/gd.c", "func_p)()", "func_p)(...)"
+      inreplace "ext/gd/gd_ctx.c", "func_p)()", "func_p)(...)"
+      inreplace "ext/standard/scanf.c", "zend_long (*fn)()", "zend_long (*fn)(...)"
     end
 
     # Work around to support `icu4c` 75, which needs C++17.
@@ -89,6 +111,8 @@ class VshPhp74 < Formula
     # cURL needs the value to be long,
     inreplace "ext/curl/interface.c", /CURLOPT_VERBOSE,\s+0/, "CURLOPT_VERBOSE, 0L"
 
+    inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
+    
     config_path = etc/"#{name}"
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
@@ -111,6 +135,10 @@ class VshPhp74 < Formula
     # sdk path or it won't find the headers
     headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
 
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
+
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20190902"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
 
@@ -125,11 +153,9 @@ class VshPhp74 < Formula
       --with-config-file-scan-dir=#{config_path}/conf.d
       --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
-      --with-os-sdkpath=#{MacOS.sdk_path_if_needed}
       --enable-bcmath
       --enable-calendar
       --enable-dba
-      --enable-dtrace
       --enable-exif
       --enable-ftp
       --enable-fpm
@@ -150,11 +176,11 @@ class VshPhp74 < Formula
       --enable-sysvshm
       --with-bz2#{headers_path}
       --with-curl
-      --with-ffi
       --with-external-gd
       --with-external-pcre
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-ffi
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-freetype
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
@@ -163,7 +189,6 @@ class VshPhp74 < Formula
       --with-kerberos
       --with-layout=GNU
       --with-ldap=#{Formula["openldap"].opt_prefix}
-      --with-ldap-sasl
       --with-libxml
       --with-libedit
       --with-mhash#{headers_path}
@@ -190,6 +215,17 @@ class VshPhp74 < Formula
       --with-zip
       --with-zlib
     ]
+
+    if OS.mac?
+      args << "--enable-dtrace"
+      args << "--with-ldap-sasl"
+      args << "--with-os-sdkpath=#{MacOS.sdk_path_if_needed}"
+    else
+      args << "--disable-dtrace"
+      args << "--without-ldap-sasl"
+      args << "--without-ndbm"
+      args << "--without-gdbm"
+    end
 
     system "./configure", *args
     system "make"

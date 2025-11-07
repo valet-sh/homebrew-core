@@ -1,17 +1,17 @@
 class VshElasticsearch8 < Formula
   desc "Distributed search & analytics engine"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://github.com/elastic/elasticsearch/archive/v8.6.2.tar.gz"
-  sha256 "3ef8ce37e938077472a609f7fd4d80e43486ebdac6685220dd04ba94188dd2ff"
-  revision 14
+  url "https://github.com/elastic/elasticsearch/archive/v8.18.7.tar.gz"
+  sha256 "9abe87f042a40ff30125ed42c8d1562273f77695328edbdbed0e945c94b1c68d"
+  revision 2
   license "Apache-2.0"
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 ventura: "3d9cffc271f2bd86bb653ceb005bcda3cdff18ff2e4f0af75b48320fd0093313"
+    sha256 sonoma: "2b9494b566658524a502b87f6d64d121bb3cd05b9a8eb46a492b3fff2fd33c53"
   end
 
-  depends_on "gradle@7" => :build
+  depends_on "gradle@8" => :build
   depends_on "openjdk@17"
 
   def cluster_name
@@ -58,6 +58,8 @@ class VshElasticsearch8 < Formula
         base_dir=$(dirname $0)
         PLUGIN_BIN=${base_dir}/elasticsearch-plugin
 
+        unset _JAVA_OPTIONS
+
         for plugin in $(${PLUGIN_BIN} list); do
             "${PLUGIN_BIN}" remove "${plugin}"
             "${PLUGIN_BIN}" install "${plugin}"
@@ -86,6 +88,8 @@ class VshElasticsearch8 < Formula
     ln_s var/"#{name}/plugins", libexec/"plugins" unless (libexec/"plugins").exist?
     # fix test not being able to create keystore because of sandbox permissions
     system libexec/"bin/elasticsearch-keystore", "create" unless (etc/"#{name}/elasticsearch.keystore").exist?
+
+    system libexec/"bin/elasticsearch-plugin list"
 
     # run plugin update script
     system libexec/"bin/elasticsearch-plugin-update"

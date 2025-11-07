@@ -1,18 +1,19 @@
 class VshPhp84 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
-  url "https://www.php.net/distributions/php-8.4.5.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.4.5.tar.xz"
-  sha256 "0d3270bbce4d9ec617befce52458b763fd461d475f1fe2ed878bb8573faed327"
+  # Should only be updated if the new version is announced on the homepage, https://www.php.net/
+  url "https://www.php.net/distributions/php-8.4.12.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.4.12.tar.xz"
+  sha256 "c1b7978cbb5054eed6c749bde4444afc16a3f2268101fb70a7d5d9b1083b12ad"
   license "PHP-3.01"
-  revision 22
+  revision 24
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sequoia: "d4ba2a71416080cf15ca27e16699137d0610c7e9e1e0f1937ee71a262fee8c28"
+    sha256 sonoma: "af4bfbd4a69a785b536ce3ac50109f83cc3a2beccd59e87fdb86e021abd8ad21"
   end
 
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
   depends_on "apr"
   depends_on "apr-util"
   depends_on "argon2"
@@ -47,19 +48,35 @@ class VshPhp84 < Formula
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
 
-  patch :DATA
+  on_macos do
+    depends_on "gcc"
+
+    # PHP build system incorrectly links system libraries
+    # see https://github.com/php/php-src/issues/10680
+    patch :DATA
+  end
+
+  # https://github.com/Homebrew/homebrew-core/issues/235820
+  # https://clang.llvm.org/docs/UsersManual.html#gcc-extensions-not-implemented-yet
+  fails_with :clang do
+    cause "Performs worse due to lack of general global register variables"
+  end
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/refs/tags/3.4.2.tar.gz"
-    sha256 "3659538cd6c3eb55097989f40b6aa172a0e09646b68ee657ace33aa0e4356849"
+    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
+    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0RC2.tar.gz"
-    sha256 "aa43c5be88abb2c8deb4c83f176f3c0d55be3db132056a8c0ef073b4f1bc79c7"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
+    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
   end
 
   def install
+    # GCC -Os performs worse than -O1 and significantly worse than -O2/-O3.
+    # We lack a DSL to enable -O2 so just use -O3 which is similar.
+    ENV.O3 if OS.mac?
+
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
 
@@ -70,7 +87,7 @@ class VshPhp84 < Formula
     ENV["lt_cv_path_SED"] = "sed"
 
     # Identify build provider in php -v output and phpinfo()
-    ENV["PHP_BUILD_PROVIDER"] = "valet-sh"
+    ENV["PHP_BUILD_PROVIDER"] = "valet.sh"
 
     # system pkg-config missing
     ENV["KERBEROS_CFLAGS"] = " "
@@ -85,7 +102,11 @@ class VshPhp84 < Formula
 
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
-    headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
+    headers_path = "=#{MacOS.sdk_path_if_needed}/usr" if OS.mac?
+
+    # `_www` only exists on macOS.
+    fpm_user = OS.mac? ? "_www" : "www-data"
+    fpm_group = OS.mac? ? "_www" : "www-data"
 
     ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20210902"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
@@ -101,7 +122,6 @@ class VshPhp84 < Formula
       --with-config-file-scan-dir=#{config_path}/conf.d
       --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
-      --with-os-sdkpath=#{MacOS.sdk_path_if_needed}
       --enable-bcmath
       --enable-calendar
       --enable-dba
@@ -128,8 +148,8 @@ class VshPhp84 < Formula
       --with-external-gd
       --with-external-pcre
       --with-ffi
-      --with-fpm-user=_www
-      --with-fpm-group=_www
+      --with-fpm-user=#{fpm_user}
+      --with-fpm-group=#{fpm_group}
       --with-gettext=#{Formula["gettext"].opt_prefix}
       --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
@@ -143,7 +163,7 @@ class VshPhp84 < Formula
       --with-mysqli=mysqlnd
       --with-ndbm#{headers_path}
       --with-openssl
-      --with-password-argon2=#{Formula["argon2"].opt_prefix}
+      --with-password-argon2
       --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
       --with-pdo-odbc=unixODBC,#{Formula["unixodbc"].opt_prefix}
@@ -159,9 +179,18 @@ class VshPhp84 < Formula
       --with-xsl
       --with-zip
       --with-zlib
-      --enable-dtrace
-      --with-ldap-sasl
     ]
+
+    if OS.mac?
+      args << "--enable-dtrace"
+      args << "--with-ldap-sasl"
+      args << "--with-os-sdkpath=#{MacOS.sdk_path_if_needed}"
+    else
+      args << "--disable-dtrace"
+      args << "--without-ldap-sasl"
+      args << "--without-ndbm"
+      args << "--without-gdbm"
+    end
 
     system "./configure", *args
     system "make"
@@ -176,8 +205,11 @@ class VshPhp84 < Formula
     }
 
     resource("imagick_module").stage {
+      args = %W[
+        --with-imagick=#{Formula["imagemagick"].opt_prefix}
+      ]
       system "#{bin}/phpize#{bin_suffix}"
-      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}"
+      system "./configure", "--with-php-config=#{bin}/php-config#{bin_suffix}", *args
       system "make", "clean"
       system "make", "all"
       system "make", "install"

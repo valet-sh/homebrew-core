@@ -4,11 +4,11 @@ class VshMailhog < Formula
   url "https://github.com/mailhog/MailHog/archive/refs/tags/v1.0.1.tar.gz"
   sha256 "6227b566f3f7acbfee0011643c46721e20389eba4c8c2d795c0d2f4d2905f282"
   license "MIT"
-  revision 5
+  revision 6
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "a76320d174adfa517f8c0ebdcbd918df5a1581f0599f22d00c92c8e030da82cc"
+    sha256 sonoma: "bd094883c027537c2dbb5181fb3c1363be83f8f3828fc3853bd05646f60e2c7a"
   end
 
   depends_on "go" => :build
