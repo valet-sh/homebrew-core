@@ -5,7 +5,7 @@ class VshPhp83 < Formula
   mirror "https://fossies.org/linux/www/php-8.3.25.tar.xz"
   sha256 "187b61bb795015adacf53f8c55b44414a63777ec19a776b75fb88614506c0d37"
   license "PHP-3.01"
-  revision 3
+  revision 4
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -62,8 +62,8 @@ class VshPhp83 < Formula
   end
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
-    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
+    url "https://github.com/xdebug/xdebug/archive/3.3.1.tar.gz"
+    sha256 "76d0467154d7f2714a07f88c7c17658e24dd58fb919a9aa08ab4bc23dccce76d"
   end
 
   resource "imagick_module" do
