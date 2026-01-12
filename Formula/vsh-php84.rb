@@ -108,7 +108,7 @@ class VshPhp84 < Formula
     fpm_user = OS.mac? ? "_www" : "www-data"
     fpm_group = OS.mac? ? "_www" : "www-data"
 
-    ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20210902"
+    ENV["EXTENSION_DIR"] = "#{prefix}/lib/#{name}/20240924"
     ENV["PHP_PEAR_PHP_BIN"] = "#{bin}/php#{bin_suffix}"
 
     args = %W[
