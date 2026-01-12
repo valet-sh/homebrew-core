@@ -52,8 +52,8 @@ class VshPhp85 < Formula
   depends_on "gettext"
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
-    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
+    url "https://github.com/xdebug/xdebug/archive/3.5.0.tar.gz"
+    sha256 "b10d27bc09f242004474f4cdb3736a27b0dae3f41a9bc92259493fc019f97d10"
   end
 
   resource "imagick_module" do
