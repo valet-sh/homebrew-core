@@ -101,8 +101,12 @@ class VshPhp85 < Formula
       --prefix=#{prefix}
       --localstatedir=#{var}
       --sysconfdir=#{config_path}
+      --libdir=#{prefix}/lib/#{name}
+      --includedir=#{prefix}/include/#{name}
+      --datadir=#{prefix}/share/#{name}
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
+      --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
       --enable-bcmath
       --enable-calendar
