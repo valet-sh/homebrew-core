@@ -6,34 +6,13 @@ class VshPhp85 < Formula
   mirror "https://fossies.org/linux/www/php-8.5.1.tar.xz"
   sha256 "3f5bf99ce81201f526d25e288eddb2cfa111d068950d1e9a869530054ff98815"
   license all_of: [
-    "PHP-3.01",
-
-    # Extra licenses not documented in README.REDIST.BINS
-    "Zend-2.0", # Zend/LICENSE
-    "BSL-1.0",  # Zend/asm/LICENSE
-    "MIT",      # ext/date/lib/LICENSE.rst
-
-    # Extra licenses documented in README.REDIST.BINS ignoring unbundled pcre2lib (3) and gd (13)
-    # ref: https://github.com/php/php-src/blob/PHP-8.5/README.REDIST.BINS
-    "Apache-1.0",            # 10
-    "Apache-2.0",            # 20
-    "bcrypt-Solar-Designer", # 5
-    "BSD-2-Clause-Darwin",   # 1
-    "BSD-2-Clause",          # 14, 18, 19, 21; also TSRM/LICENSE
-    "BSD-3-Clause",          # 4, 6, 11, 12, 15, 22
-    "BSD-4-Clause-UC",       # 9
-    "ISC",                   # 10
-    "LGPL-2.1-only",         # 2
-    "LGPL-2.1-or-later",     # 16
-    "OLDAP-2.8",             # 17
-    "TCL",                   # 7
-    "Zlib",                  # 8
+    "PHP-3.01"
   ]
-  revision 1
+  revision 2
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "af4bfbd4a69a785b536ce3ac50109f83cc3a2beccd59e87fdb86e021abd8ad21"
+    sha256 sonoma: "d911c83a048138651fb1f2cfbf8f7eed734a1dce40cf0e8d1fc5ea7f8be54f33"
   end
 
   depends_on "bison" => :build
@@ -73,13 +52,13 @@ class VshPhp85 < Formula
   depends_on "gettext"
 
   resource "xdebug_module" do
-    url "https://github.com/xdebug/xdebug/archive/3.4.5.tar.gz"
-    sha256 "30a1dcfd2e1e40af5f6166028a1e476a311c899cbeeb84cb22ec6185b946ed70"
+    url "https://github.com/xdebug/xdebug/archive/3.5.0.tar.gz"
+    sha256 "b10d27bc09f242004474f4cdb3736a27b0dae3f41a9bc92259493fc019f97d10"
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
-    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz"
+    sha256 "b0e9279ddf6e75a8c6b4068e16daec0475427dbca7ce2e144e30a51a88aa5ddc"
   end
 
   def install
@@ -122,8 +101,12 @@ class VshPhp85 < Formula
       --prefix=#{prefix}
       --localstatedir=#{var}
       --sysconfdir=#{config_path}
+      --libdir=#{prefix}/lib/#{name}
+      --includedir=#{prefix}/include/#{name}
+      --datadir=#{prefix}/share/#{name}
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
+      --program-suffix=#{bin_suffix}
       --with-pear=#{pkgshare}/pear
       --enable-bcmath
       --enable-calendar
