@@ -57,8 +57,8 @@ class VshPhp85 < Formula
   end
 
   resource "imagick_module" do
-    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.0.tar.gz"
-    sha256 "a964e54a441392577f195d91da56e0b3cf30c32e6d60d0531a355b37bb1e1a59"
+    url "https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz"
+    sha256 "b0e9279ddf6e75a8c6b4068e16daec0475427dbca7ce2e144e30a51a88aa5ddc"
   end
 
   def install
