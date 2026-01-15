@@ -1,24 +1,24 @@
 class VshMysql84 < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.4/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.4.tar.gz"
-  sha256 "fb290ef748894434085249c31bca52ac71853124446ab218bb3bc502bf0082a5"
+  url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.7.tar.gz"
+  sha256 "c0bf33a94cdb908f149aea0797affb1b139262ccf0e0b9787a17246207542e69"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 24
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "2f569146d16216e7ae211c7f3682882d345700f59ed43f84c6e6e2c446ba8eab"
+    sha256 sonoma: "9970347eadc68ba1391c74649477b0e4a2d9c98d39803abaa18cb6554e9bdeed"
   end
 
   depends_on "bison" => :build
   depends_on "cmake" => :build
   depends_on "pkgconf" => :build
   depends_on "abseil"
-  depends_on "icu4c@77"
+  depends_on "icu4c@78"
   depends_on "lz4"
   depends_on "openssl@3"
-  depends_on "protobuf@29"
+  depends_on "protobuf"
   depends_on "zlib" # Zlib 1.2.13+
   depends_on "zstd"
 
@@ -28,8 +28,15 @@ class VshMysql84 < Formula
 
   depends_on "llvm" if DevelopmentTools.clang_build_version <= 1400
 
-  conflicts_with "mysql", "mariadb", "percona-server",
-    because: "mysql, mariadb, and percona install the same binaries"
+  fails_with :clang do
+    build 1400
+    cause "Requires C++20"
+  end
+
+  fails_with :gcc do
+    version "9"
+    cause "Requires C++20"
+  end
 
   # Patch out check for Homebrew `boost`.
   # This should not be necessary when building inside `brew`.
@@ -48,22 +55,26 @@ class VshMysql84 < Formula
     # Remove bundled libraries other than explicitly allowed below.
     # `boost` and `rapidjson` must use bundled copy due to patches.
     # `lz4` is still needed due to xxhash.c used by mysqlgcs
-    keep = %w[boost libbacktrace libcno lz4 rapidjson unordered_dense]
+    keep = %w[boost libbacktrace libcno lz4 rapidjson unordered_dense xxhash]
     (buildpath/"extra").each_child { |dir| rm_r(dir) unless keep.include?(dir.basename.to_s) }
 
-    if DevelopmentTools.clang_build_version <= 1400
+    if OS.linux?
+      # Disable ABI checking
+      inreplace "cmake/abi_check.cmake", "RUN_ABI_CHECK 1", "RUN_ABI_CHECK 0"
+    elsif DevelopmentTools.clang_build_version <= 1400
       ENV.llvm_clang
       # Work around failure mixing newer `llvm` headers with older Xcode's libc++:
       # Undefined symbols for architecture arm64:
       #   "std::exception_ptr::__from_native_exception_pointer(void*)", referenced from:
-      #       std::exception_ptr std::make_exception_ptr[abi:ne184100]<std::runtime_error>(std::runtime_error) ...
+      #       std::exception_ptr std::make_exception_ptr[abi:ne180100]<std::runtime_error>(std::runtime_error) ...
       ENV.prepend_path "HOMEBREW_LIBRARY_PATHS", Formula["llvm"].opt_lib/"c++"
     end
 
     icu4c = deps.find { |dep| dep.name.match?(/^icu4c(@\d+)?$/) }
                 .to_formula
-
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
+    # -DWITH_FIDO=system isn't set as feature isn't enabled and bundled copy was removed.
+    # Formula paths are set to avoid HOMEBREW_HOME logic in CMake scripts
     args = %W[
       -DCMAKE_INSTALL_PREFIX=#{libexec}
       -DCOMPILATION_COMMENT=valet-sh
