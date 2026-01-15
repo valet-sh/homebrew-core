@@ -15,10 +15,10 @@ class VshMysql84 < Formula
   depends_on "cmake" => :build
   depends_on "pkgconf" => :build
   depends_on "abseil"
-  depends_on "icu4c@77"
+  depends_on "icu4c@78"
   depends_on "lz4"
   depends_on "openssl@3"
-  depends_on "protobuf@29"
+  depends_on "protobuf"
   depends_on "zlib" # Zlib 1.2.13+
   depends_on "zstd"
 
@@ -28,8 +28,15 @@ class VshMysql84 < Formula
 
   depends_on "llvm" if DevelopmentTools.clang_build_version <= 1400
 
-  conflicts_with "mysql", "mariadb", "percona-server",
-    because: "mysql, mariadb, and percona install the same binaries"
+  fails_with :clang do
+    build 1400
+    cause "Requires C++20"
+  end
+
+  fails_with :gcc do
+    version "9"
+    cause "Requires C++20"
+  end
 
   # Patch out check for Homebrew `boost`.
   # This should not be necessary when building inside `brew`.
@@ -48,22 +55,26 @@ class VshMysql84 < Formula
     # Remove bundled libraries other than explicitly allowed below.
     # `boost` and `rapidjson` must use bundled copy due to patches.
     # `lz4` is still needed due to xxhash.c used by mysqlgcs
-    keep = %w[boost libbacktrace libcno lz4 rapidjson unordered_dense]
+    keep = %w[boost libbacktrace libcno lz4 rapidjson unordered_dense xxhash]
     (buildpath/"extra").each_child { |dir| rm_r(dir) unless keep.include?(dir.basename.to_s) }
 
-    if DevelopmentTools.clang_build_version <= 1400
+    if OS.linux?
+      # Disable ABI checking
+      inreplace "cmake/abi_check.cmake", "RUN_ABI_CHECK 1", "RUN_ABI_CHECK 0"
+    elsif DevelopmentTools.clang_build_version <= 1400
       ENV.llvm_clang
       # Work around failure mixing newer `llvm` headers with older Xcode's libc++:
       # Undefined symbols for architecture arm64:
       #   "std::exception_ptr::__from_native_exception_pointer(void*)", referenced from:
-      #       std::exception_ptr std::make_exception_ptr[abi:ne184100]<std::runtime_error>(std::runtime_error) ...
+      #       std::exception_ptr std::make_exception_ptr[abi:ne180100]<std::runtime_error>(std::runtime_error) ...
       ENV.prepend_path "HOMEBREW_LIBRARY_PATHS", Formula["llvm"].opt_lib/"c++"
     end
 
     icu4c = deps.find { |dep| dep.name.match?(/^icu4c(@\d+)?$/) }
                 .to_formula
-
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
+    # -DWITH_FIDO=system isn't set as feature isn't enabled and bundled copy was removed.
+    # Formula paths are set to avoid HOMEBREW_HOME logic in CMake scripts
     args = %W[
       -DCMAKE_INSTALL_PREFIX=#{libexec}
       -DCOMPILATION_COMMENT=valet-sh
