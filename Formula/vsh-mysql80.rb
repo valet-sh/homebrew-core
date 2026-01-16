@@ -5,7 +5,7 @@ class VshMysql80 < Formula
   mirror "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/mysql-8.0/8.0.43-0ubuntu0.24.04.2/mysql-8.0_8.0.43.orig.tar.gz"
   sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 44
+  revision 45
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
