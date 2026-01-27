@@ -5,11 +5,11 @@ class VshPhp80 < Formula
   version "8.0.30"
   sha256 "091e70a151ec18206aa15a69d774ea661b0d43d4ba3fbbb3f794a5e81773ffce"
   license "PHP-3.01"
-  revision 566
+  revision 567
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "cd050405e08cac9f65d34a6f28ab950aaf708159b10c227ef4f51ede2a759cfc"
+    sha256 sonoma: "0b5ed03760ae45214f3016c8405dd20a06a2eeb3ff3922a5e6bd98b77c7fd50c"
   end
 
   depends_on "bison" => :build
@@ -136,7 +136,6 @@ class VshPhp80 < Formula
       --enable-ftp
       --enable-fpm
       --enable-gd
-      --enable-intl
       --enable-mbregex
       --enable-mbstring
       --enable-mysqlnd
