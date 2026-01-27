@@ -5,7 +5,7 @@ class VshPhp74 < Formula
   version "7.4.33"
   sha256 "7f9b8e85407c223c3a45e11c1bb4fbebf66ef7c9008277eb1ddba2b5d1037384"
   license "PHP-3.01"
-  revision 568
+  revision 569
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -152,7 +152,6 @@ class VshPhp74 < Formula
       --enable-ftp
       --enable-fpm
       --enable-gd
-      --enable-intl
       --enable-mbregex
       --enable-mbstring
       --enable-mysqlnd
