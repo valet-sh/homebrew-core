@@ -8,7 +8,7 @@ class VshPhp85 < Formula
   license all_of: [
     "PHP-3.01"
   ]
-  revision 3
+  revision 4
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -272,18 +272,6 @@ class VshPhp85 < Formula
 
     chmod 0644, pear_files
 
-    # Custom location for extensions installed via pecl
-    pecl_path = HOMEBREW_PREFIX/"lib/php/pecl"
-    pecl_path.mkpath
-    ln_s pecl_path, prefix/"pecl" unless (prefix/"pecl").exist?
-    extension_dir = Utils.safe_popen_read(bin/"php-config", "--extension-dir").chomp
-    php_basename = File.basename(extension_dir)
-    (pecl_path/php_basename).mkpath
-
-    # fix pear config to install outside cellar
-    pear_dir = versioned_formula? ? "pear@#{version.major_minor}" : "pear"
-    pear_path = HOMEBREW_PREFIX/"share"/pear_dir
-    cp_r pkgshare/"pear/.", pear_path
     {
       "php_ini"  => etc/"#{name}/php.ini"
     }.each do |key, value|
