@@ -8,7 +8,7 @@ class VshGradle6 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "55b3c25135ab842e1c89e1c92b83a403a0fb9e507c99ff49d3df7c7a7770d878"
+    sha256 sonoma: "45e8e9317d4e22eb769abdc15b4e9ff97e2ee58db0991f0b1a1f34254630f478"
   end
 
   depends_on "openjdk@11"
