@@ -8,11 +8,11 @@ class VshPhp85 < Formula
   license all_of: [
     "PHP-3.01"
   ]
-  revision 4
+  revision 5
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "a7d61e4ab497700c03a9cbeb9ecd7cb9d6b602f6ca8443f2659a6234ce4e11e4"
+    sha256 sonoma: "0606936653e369fd8d96221b9739ca494ca3f28e1d69be640683adc7fdbd373a"
   end
 
   depends_on "bison" => :build
@@ -280,22 +280,6 @@ class VshPhp85 < Formula
     end
 
     system bin/"pear#{bin_suffix}", "update-channels"
-
-    %w[
-      opcache
-    ].each do |e|
-      ext_config_path = etc/"#{name}/conf.d/ext-#{e}.ini"
-      extension_type = (e == "opcache") ? "zend_extension" : "extension"
-      if ext_config_path.exist?
-        inreplace ext_config_path,
-          /#{extension_type}=.*$/, "#{extension_type}=#{e}.so"
-      else
-        ext_config_path.write <<~EOS
-          [#{e}]
-          #{extension_type}="#{e}.so"
-        EOS
-      end
-    end
   end
 
   def php_version
