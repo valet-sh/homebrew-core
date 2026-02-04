@@ -4,7 +4,7 @@ class VshMailhog < Formula
   url "https://github.com/mailhog/MailHog/archive/refs/tags/v1.0.1.tar.gz"
   sha256 "6227b566f3f7acbfee0011643c46721e20389eba4c8c2d795c0d2f4d2905f282"
   license "MIT"
-  revision 6
+  revision 7
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
