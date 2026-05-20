@@ -4,7 +4,7 @@ class VshGradle6 < Formula
   url "https://services.gradle.org/distributions/gradle-6.9.4-all.zip"
   sha256 "84b50e7b380e9dc9bbc81e30a8eb45371527010cf670199596c86875f774b8b0"
   license "Apache-2.0"
-  revision 1
+  revision 3
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
