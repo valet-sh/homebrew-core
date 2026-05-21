@@ -4,7 +4,7 @@ class VshOpensearch3 < Formula
   url "https://github.com/opensearch-project/OpenSearch/archive/refs/tags/3.2.0.tar.gz"
   sha256 "1f791778b8c86c1072181c810022f904613b9061568698ac014224ac71e12419"
   license "Apache-2.0"
-  revision 4
+  revision 5
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
@@ -12,7 +12,7 @@ class VshOpensearch3 < Formula
   end
 
   depends_on "gradle@8" => :build
-  depends_on "openjdk"
+  depends_on "openjdk@21"
 
   def cluster_name
     "opensearch3"
@@ -56,7 +56,7 @@ class VshOpensearch3 < Formula
     (libexec/"bin/opensearch-plugin-update").write <<~EOS
         #!/bin/bash
 
-        export JAVA_HOME="#{Formula["openjdk"].opt_libexec}/openjdk.jdk/Contents/Home"
+        export JAVA_HOME="#{Formula["openjdk@21"].opt_libexec}/openjdk.jdk/Contents/Home"
 
         base_dir=$(dirname $0)
         PLUGIN_BIN=${base_dir}/opensearch-plugin
@@ -75,9 +75,9 @@ class VshOpensearch3 < Formula
 
     inreplace libexec/"bin/opensearch-env",
               "CDPATH=\"\"",
-              "JAVA_HOME=\"#{Formula['openjdk'].opt_libexec}/openjdk.jdk/Contents/Home\"\nCDPATH=\"\""
+              "JAVA_HOME=\"#{Formula['openjdk@21'].opt_libexec}/openjdk.jdk/Contents/Home\"\nCDPATH=\"\""
 
-    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk"].opt_prefix)
+    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk@21"].opt_prefix)
   end
 
   def post_install
