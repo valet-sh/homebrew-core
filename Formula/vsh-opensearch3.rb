@@ -1,25 +1,25 @@
 class VshOpensearch3 < Formula
   desc "Open source distributed and RESTful search engine"
   homepage "https://github.com/opensearch-project/OpenSearch"
-  url "https://github.com/opensearch-project/OpenSearch/archive/refs/tags/3.2.0.tar.gz"
-  sha256 "1f791778b8c86c1072181c810022f904613b9061568698ac014224ac71e12419"
+    url "https://github.com/opensearch-project/OpenSearch.git",
+        tag:      "3.6.0",
+        revision: "4ca747d8d47f80162db323019357447126732e35"
   license "Apache-2.0"
-  revision 5
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
     sha256 sonoma: "36dde73648176297e74090aa6ddd2fa023e6c490288652441208f2cc3828513d"
   end
 
-  depends_on "gradle@8" => :build
-  depends_on "openjdk@21"
+  depends_on "openjdk@25"
 
   def cluster_name
     "opensearch3"
   end
 
   def install
-    system "gradle", ":distribution:archives:no-jdk-darwin-tar:assemble", "-Dbuild.snapshot=false"
+    system "./gradlew", ":distribution:archives:no-jdk-darwin-tar:assemble", "-Dbuild.snapshot=false"
 
     mkdir "tar" do
       # Extract the package to the tar directory
@@ -56,7 +56,7 @@ class VshOpensearch3 < Formula
     (libexec/"bin/opensearch-plugin-update").write <<~EOS
         #!/bin/bash
 
-        export JAVA_HOME="#{Formula["openjdk@21"].opt_libexec}/openjdk.jdk/Contents/Home"
+        export JAVA_HOME="#{Formula["openjdk@25"].opt_libexec}/openjdk.jdk/Contents/Home"
 
         base_dir=$(dirname $0)
         PLUGIN_BIN=${base_dir}/opensearch-plugin
@@ -75,9 +75,9 @@ class VshOpensearch3 < Formula
 
     inreplace libexec/"bin/opensearch-env",
               "CDPATH=\"\"",
-              "JAVA_HOME=\"#{Formula['openjdk@21'].opt_libexec}/openjdk.jdk/Contents/Home\"\nCDPATH=\"\""
+              "JAVA_HOME=\"#{Formula['openjdk@25'].opt_libexec}/openjdk.jdk/Contents/Home\"\nCDPATH=\"\""
 
-    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk@21"].opt_prefix)
+    bin.env_script_all_files(libexec/"bin", JAVA_HOME: Formula["openjdk@25"].opt_prefix)
   end
 
   def post_install
