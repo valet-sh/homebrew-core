@@ -9,7 +9,7 @@ class VshOpensearch3 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "36dde73648176297e74090aa6ddd2fa023e6c490288652441208f2cc3828513d"
+    sha256 sonoma: "994c585d412791b71ee438b44235f7c4968f711b6b6711b7976eb055f6de0cfb"
   end
 
   depends_on "openjdk@25"
