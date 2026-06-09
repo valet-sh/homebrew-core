@@ -1,28 +1,27 @@
 class VshMysql80 < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/8.0/en/"
-  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.43.tar.gz"
-  mirror "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/mysql-8.0/8.0.43-0ubuntu0.24.04.2/mysql-8.0_8.0.43.orig.tar.gz"
-  sha256 "85fd5c3ac88884dc5ac4522ce54ad9c11a91f9396fecaa27152c757a3e6e936f"
+  url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.46.tar.gz"
+  sha256 "dff4332ee7f8f37fc0516c66763600a22a81c8192c743c477b6484206e314f2f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 46
+  revision 1
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "c9894873ccd300d55e9a3c9bebb51ebda240c3743353c6e100171c1b9a8c640a"
+    sha256 sonoma: "ff2e5256981dc6f54be2f531f0c2e1050047031a0f47c1971f640ec720e5ca0f"
   end
 
   depends_on "bison" => :build
   depends_on "cmake" => :build
   depends_on "pkgconf" => :build
   depends_on "abseil"
-  depends_on "icu4c@77"
+  depends_on "icu4c@78"
   depends_on "libevent"
   depends_on "libfido2"
   depends_on "lz4"
   depends_on "openssl@3"
-  depends_on "protobuf@29"
-  depends_on "zlib" # Zlib 1.2.13+
+  depends_on "protobuf"
+  depends_on "zlib-ng-compat" # Zlib 1.2.13+
   depends_on "zstd"
 
   uses_from_macos "curl"
