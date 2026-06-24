@@ -6,11 +6,11 @@ class VshPhp84 < Formula
   mirror "https://fossies.org/linux/www/php-8.4.12.tar.xz"
   sha256 "c1b7978cbb5054eed6c749bde4444afc16a3f2268101fb70a7d5d9b1083b12ad"
   license "PHP-3.01"
-  revision 25
+  revision 26
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "f3225be2e77498de48cd1bced2081f121f73515ffb22985384baf2f6f722659e"
+    sha256 sonoma: "9c04e1365feb2a232649a881b54a9666a03ccdd9fbe87c9798a2964cb1a6fbff"
   end
 
   depends_on "pkgconf" => :build
