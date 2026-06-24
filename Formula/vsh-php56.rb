@@ -9,7 +9,7 @@ class VshPhp56 < Formula
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "6507b2f43040dfed2d00d48328706dc02e509fb6e205914431e0b7fc75a7b178"
+    sha256 sonoma: "6a8c7fe5327c3801407ce085da32857eb798b958fb0dbefb7ae9bc99d17873c2"
   end
 
   depends_on "bison" => :build
