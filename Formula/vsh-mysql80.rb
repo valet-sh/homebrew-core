@@ -4,11 +4,11 @@ class VshMysql80 < Formula
   url "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-8.0.46.tar.gz"
   sha256 "dff4332ee7f8f37fc0516c66763600a22a81c8192c743c477b6484206e314f2f"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 1
+  revision 2
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "ff2e5256981dc6f54be2f531f0c2e1050047031a0f47c1971f640ec720e5ca0f"
+    sha256 sonoma: "8f56a48e67df0e403d9818972fa4ed05a647c1aacec843adb9336574415fd336"
   end
 
   depends_on "bison" => :build
