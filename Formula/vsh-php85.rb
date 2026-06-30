@@ -8,7 +8,7 @@ class VshPhp85 < Formula
   license all_of: [
     "PHP-3.01"
   ]
-  revision 6
+  revision 7
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
