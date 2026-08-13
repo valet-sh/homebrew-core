@@ -4,11 +4,11 @@ class VshMysql84 < Formula
   url "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.9.tar.gz"
   sha256 "e4aa8b39e42d1fe078f33bbd73695fac2b54dbc7bb137f0bdbe63f7be1a02d6b"
   license "GPL-2.0-only" => { with: "Universal-FOSS-exception-1.0" }
-  revision 2
+  revision 3
 
   bottle do
     root_url "https://github.com/valet-sh/homebrew-core/releases/download/bottles"
-    sha256 sonoma: "b09a52a35962bc128cdd635bed0626da9b75e00675d9588cf20033e160124160"
+    sha256 sonoma: "abdb722a5f47b171a91dba270769a13e66fe1457c9845b31ceb71e87bfad96d3"
   end
 
   depends_on "bison" => :build
