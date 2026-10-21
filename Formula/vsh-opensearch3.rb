@@ -3,7 +3,7 @@ class VshOpensearch3 < Formula
   homepage "https://github.com/opensearch-project/OpenSearch"
     url "https://github.com/opensearch-project/OpenSearch.git",
         tag:      "3.6.0",
-        revision: "4ca747d8d47f80162db323019357447126732e35"
+  revision 2
   license "Apache-2.0"
   revision 1
 
